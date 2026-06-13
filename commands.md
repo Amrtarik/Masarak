@@ -1,3 +1,4 @@
+localhost:49179
 # Masarak Developer Command Reference
 
 This document contains the essential CLI commands required to build, test, and deploy the Masarak platform across different development phases.
@@ -53,7 +54,7 @@ dotnet ef migrations remove --project "Masarak.Infrastructure" --startup-project
 
 ## 3. Postman & Newman Automated Testing
 
-Ensure your API is running locally (e.g., on `http://localhost:5278`) before running tests.
+Ensure your API is running locally (e.g., on `http://localhost:49179`) before running tests.
 
 ### Install Newman CLI (One-time setup)
 ```bash
