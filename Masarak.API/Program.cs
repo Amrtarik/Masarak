@@ -18,7 +18,10 @@ builder.Services.AddDbContext<Context>(options =>
         }));
 
 // ── Application Services ──────────────────────────────────────────────────────
-builder.Services.AddApplicationServices();
+builder.Services.AddApplicationServices(builder.Configuration);
+
+// ── Background Jobs ───────────────────────────────────────────────────────────
+builder.Services.AddHostedService<SubscriptionExpiryJob>();
 
 // ── JWT Authentication ────────────────────────────────────────────────────────
 builder.Services.AddJwtAuthentication(builder.Configuration);
@@ -53,6 +56,7 @@ using (var scope = app.Services.CreateScope())
     await DatabaseSeeder.SeedRolesAsync(db);
     await DatabaseSeeder.SeedGradesAsync(db);  // needed for student self-registration
     await DatabaseSeeder.SeedAdminUserAsync(db, pwd);
+    await DatabaseSeeder.SeedPlansAsync(db);   // Phase 1 plans
 }
 
 // ── Middleware Pipeline ───────────────────────────────────────────────────────
@@ -70,5 +74,6 @@ app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseAuthentication();   // ← must come before UseAuthorization
 app.UseAuthorization();
+app.UseMiddleware<Masarak.API.Extensions.SubscriptionAccessMiddleware>();
 app.MapControllers();
 app.Run();

@@ -46,6 +46,9 @@ namespace Masarak.Infrastructure.Persistence
         // ── Phase 2 DbSets ← NEW ──────────────────────────────────────────────
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
+        // ── Phase 1 additions ─────────────────────────────────────────────────
+        public DbSet<ParentStudentLink> ParentStudentLinks { get; set; }
+
         // ── Constructors ──────────────────────────────────────────────────────
         /// <summary>For ASP.NET Core dependency injection.</summary>
         public Context(DbContextOptions<Context> options) : base(options) { }
@@ -59,7 +62,7 @@ namespace Masarak.Infrastructure.Persistence
             {
                 // Fallback for EF tooling — real connection string comes from DI/appsettings
                 optionsBuilder.UseSqlServer(
-                    @"Data Source=.;Initial Catalog=EduPlatform;Integrated Security=True;TrustServerCertificate=True");
+                    @"Data Source=HABIBA\SQLEXPRESS;Initial Catalog=EduPlatform2;Integrated Security=True;TrustServerCertificate=True");
             }
         }
 
@@ -102,6 +105,13 @@ namespace Masarak.Infrastructure.Persistence
                 e.Property(x => x.EmailConfirmed).HasDefaultValue(false);
                 e.Property(x => x.FailedLoginCount).HasDefaultValue(0);
                 e.Property(x => x.LockoutEnd).IsRequired(false);
+
+                // ── Phase 1 additions ← Subscription phase ─────────────────
+                e.Property(x => x.StudentLinkageCode).HasMaxLength(8);
+                e.HasIndex(x => x.StudentLinkageCode)
+                 .IsUnique()
+                 .HasFilter("[StudentLinkageCode] IS NOT NULL")
+                 .HasDatabaseName("UX_users_StudentLinkageCode");
 
                 // ── Relationships ──────────────────────────────────────────
                 e.HasOne(x => x.Role)
@@ -555,9 +565,11 @@ namespace Masarak.Infrastructure.Persistence
                 e.Property(x => x.Name).HasMaxLength(100).IsRequired();
                 e.HasIndex(x => x.Name).IsUnique().HasDatabaseName("UX_plans_Name");
                 e.Property(x => x.Description).HasColumnType("nvarchar(max)");
+                e.Property(x => x.Type).HasConversion<string>().HasMaxLength(30).IsRequired();
                 e.Property(x => x.PriceMonthly).HasColumnType("decimal(10,2)").IsRequired();
                 e.Property(x => x.PriceYearly).HasColumnType("decimal(10,2)");
                 e.Property(x => x.Currency).HasMaxLength(3).HasDefaultValue("USD").IsRequired();
+                e.Property(x => x.DurationDays).HasDefaultValue(30);
                 e.Property(x => x.MaxSubjects).HasDefaultValue(-1);
                 e.Property(x => x.HasAi).HasDefaultValue(false);
                 e.Property(x => x.HasLiveClass).HasDefaultValue(true);
@@ -576,9 +588,16 @@ namespace Masarak.Infrastructure.Persistence
                 e.Property(x => x.StartDate).IsRequired();
                 e.Property(x => x.EndDate).IsRequired();
                 e.Property(x => x.BillingCycle).HasMaxLength(20).HasDefaultValue("Monthly").IsRequired();
-                e.Property(x => x.Status).HasMaxLength(20).HasDefaultValue("Active").IsRequired();
+                e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20).IsRequired();
+                e.Property(x => x.ActivationMethod).HasConversion<string>().HasMaxLength(20).IsRequired();
+                e.Property(x => x.StripeSessionId).HasMaxLength(200);
+                e.Property(x => x.StripeSubscriptionId).HasMaxLength(200);
+                e.Property(x => x.AdminNote).HasMaxLength(500);
                 e.Property(x => x.AutoRenew).HasDefaultValue(true);
                 e.Property(x => x.CreatedAt).HasDefaultValueSql("GETDATE()");
+
+                e.HasIndex(x => new { x.UserId, x.Status }).HasDatabaseName("IX_subscriptions_UserId_Status");
+                e.HasIndex(x => x.StripeSessionId).HasDatabaseName("IX_subscriptions_StripeSessionId");
 
                 e.HasOne(x => x.User)
                  .WithMany(u => u.Subscriptions)
@@ -603,12 +622,40 @@ namespace Masarak.Infrastructure.Persistence
                 e.Property(x => x.Currency).HasMaxLength(3).HasDefaultValue("USD").IsRequired();
                 e.Property(x => x.Gateway).HasMaxLength(50).IsRequired();
                 e.Property(x => x.GatewayTxnId).HasMaxLength(255);
-                e.Property(x => x.Status).HasMaxLength(20).IsRequired();
+                e.Property(x => x.StripePaymentIntentId).HasMaxLength(255);
+                e.Property(x => x.StripeChargeId).HasMaxLength(255);
+                e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20).IsRequired();
+                e.Property(x => x.Provider).HasConversion<string>().HasMaxLength(20).IsRequired();
                 e.Property(x => x.CreatedAt).HasDefaultValueSql("GETDATE()");
 
                 e.HasOne(x => x.Subscription)
                  .WithMany(s => s.Payments)
                  .HasForeignKey(x => x.SubscriptionId)
+                 .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ═══════════════════════════════════════════════════════════════════
+            // 26. PARENT_STUDENT_LINKS
+            // ═══════════════════════════════════════════════════════════════════
+            modelBuilder.Entity<ParentStudentLink>(e =>
+            {
+                e.ToTable("parent_student_links");
+                e.HasKey(x => x.ParentStudentLinkId);
+                e.Property(x => x.ParentStudentLinkId).ValueGeneratedOnAdd();
+                e.Property(x => x.LinkedAt).HasDefaultValueSql("GETDATE()");
+
+                e.HasIndex(x => new { x.ParentUserId, x.StudentUserId })
+                 .IsUnique()
+                 .HasDatabaseName("UX_parent_student_links_Parent_Student");
+
+                e.HasOne(x => x.Parent)
+                 .WithMany(p => p.ParentStudentLinks)
+                 .HasForeignKey(x => x.ParentUserId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasOne(x => x.Student)
+                 .WithMany() // Student only navigated through User if needed, or keeping it unidirectional
+                 .HasForeignKey(x => x.StudentUserId)
                  .OnDelete(DeleteBehavior.Restrict);
             });
 

@@ -22,3 +22,15 @@ D:\ITI\GradProj\Masarak\Masarak.Domain\obj\Debug\net9.0\Masarak.Domain.dll
 D:\ITI\GradProj\Masarak\Masarak.Domain\obj\Debug\net9.0\refint\Masarak.Domain.dll
 D:\ITI\GradProj\Masarak\Masarak.Domain\obj\Debug\net9.0\Masarak.Domain.pdb
 D:\ITI\GradProj\Masarak\Masarak.Domain\obj\Debug\net9.0\ref\Masarak.Domain.dll
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\bin\Debug\net9.0\Masarak.Domain.deps.json
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\bin\Debug\net9.0\Masarak.Domain.dll
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\bin\Debug\net9.0\Masarak.Domain.pdb
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\obj\Debug\net9.0\Masarak.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\obj\Debug\net9.0\Masarak.Domain.AssemblyInfoInputs.cache
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\obj\Debug\net9.0\Masarak.Domain.AssemblyInfo.cs
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\obj\Debug\net9.0\Masarak.Domain.csproj.CoreCompileInputs.cache
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\obj\Debug\net9.0\Masarak.Domain.sourcelink.json
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\obj\Debug\net9.0\Masarak.Domain.dll
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\obj\Debug\net9.0\refint\Masarak.Domain.dll
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\obj\Debug\net9.0\Masarak.Domain.pdb
+C:\Users\hbeba\source\repos\Masarak\Masarak.Domain\obj\Debug\net9.0\ref\Masarak.Domain.dll

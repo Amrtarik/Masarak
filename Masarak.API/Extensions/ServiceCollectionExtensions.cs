@@ -133,11 +133,28 @@ namespace Masarak.API.Extensions
             return services;
         }
 
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            // Core
+            services.AddMemoryCache();
+            
+            // Auth Services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IPasswordService, PasswordService>();
+
+            // Subscription Services
+            services.Configure<StripeSettings>(configuration.GetSection("StripeSettings"));
+            services.AddScoped<ISubscriptionRepository, Masarak.Infrastructure.Persistence.Repositories.SubscriptionRepository>();
+            services.AddScoped<IPlanRepository, Masarak.Infrastructure.Persistence.Repositories.PlanRepository>();
+            services.AddScoped<IPaymentRepository, Masarak.Infrastructure.Persistence.Repositories.PaymentRepository>();
+            services.AddScoped<IParentStudentLinkRepository, Masarak.Infrastructure.Persistence.Repositories.ParentStudentLinkRepository>();
+            services.AddScoped<IUserRepository, Masarak.Infrastructure.Persistence.Repositories.UserRepository>();
+
+            services.AddScoped<IStripeService, StripeService>();
+            services.AddScoped<ISubscriptionAccessService, SubscriptionAccessService>();
+            services.AddScoped<ISubscriptionService, SubscriptionService>();
+            
             return services;
         }
     }

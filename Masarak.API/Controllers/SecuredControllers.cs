@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Masarak.API.Policies;
+using Masarak.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,18 @@ namespace Masarak.API.Controllers
         [HttpDelete("users/{id}")]
         public IActionResult DeleteUser(int id) =>
             Ok(new { message = $"User {id} deleted by Admin.", user = GetUserInfo() });
+
+        [HttpGet("subscriptions")]
+        [ProducesResponseType(typeof(Masarak.Application.DTOs.PagedResult<Masarak.Application.DTOs.SubscriptionDto>), 200)]
+        public async Task<IActionResult> GetAllSubscriptions(
+            [FromServices] ISubscriptionService subscriptionService,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] Masarak.Domain.Enums.SubscriptionStatus? status = null)
+        {
+            var result = await subscriptionService.GetAllSubscriptionsAsync(page, pageSize, status);
+            return Ok(result);
+        }
 
         private object GetUserInfo() => new
         {
@@ -114,6 +127,36 @@ namespace Masarak.API.Controllers
         [HttpGet("children/{childId}/attendance")]
         public IActionResult GetChildAttendance(int childId) =>
             Ok(new { message = $"Child {childId} attendance — Parent only.", user = GetUserInfo() });
+
+        [HttpPost("link-student")]
+        [ProducesResponseType(typeof(Masarak.Application.DTOs.ParentStudentLinkDto), 200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> LinkStudent([FromServices] ISubscriptionService subscriptionService, [FromBody] Masarak.Application.DTOs.LinkStudentRequest request)
+        {
+            var parentId = int.Parse(User.FindFirstValue("userid") ?? "0");
+            if (parentId == 0) return Unauthorized();
+
+            try
+            {
+                var result = await subscriptionService.LinkParentToStudentAsync(parentId, request.StudentLinkageCode);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("linked-students")]
+        [ProducesResponseType(typeof(IEnumerable<Masarak.Application.DTOs.LinkedStudentDto>), 200)]
+        public async Task<IActionResult> GetLinkedStudents([FromServices] ISubscriptionService subscriptionService)
+        {
+            var parentId = int.Parse(User.FindFirstValue("userid") ?? "0");
+            if (parentId == 0) return Unauthorized();
+
+            var students = await subscriptionService.GetLinkedStudentsAsync(parentId);
+            return Ok(students);
+        }
 
         private object GetUserInfo() => new
         {

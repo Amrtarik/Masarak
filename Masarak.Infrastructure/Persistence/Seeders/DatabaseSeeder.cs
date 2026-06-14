@@ -48,5 +48,45 @@ namespace Masarak.Infrastructure.Persistence.Seeders
             await db.SaveChangesAsync();
             Console.WriteLine("[Seeder] Grades 1-12 seeded.");
         }
+
+        public static async Task SeedPlansAsync(Context db)
+        {
+            if (await db.Plans.AnyAsync()) return;
+
+            var plans = new List<Plan>
+            {
+                new Plan
+                {
+                    Name = "Monthly",
+                    Type = Masarak.Domain.Enums.PlanType.Monthly,
+                    PriceMonthly = 9.99m,
+                    Currency = "USD",
+                    DurationDays = 30,
+                    IsActive = true
+                },
+                new Plan
+                {
+                    Name = "Per-Subject",
+                    Type = Masarak.Domain.Enums.PlanType.PerSubject,
+                    PriceMonthly = 4.99m,
+                    Currency = "USD",
+                    DurationDays = 30,
+                    IsActive = true
+                },
+                new Plan
+                {
+                    Name = "Full-Curriculum",
+                    Type = Masarak.Domain.Enums.PlanType.FullCurriculum,
+                    PriceMonthly = 24.99m,
+                    Currency = "USD",
+                    DurationDays = 365,
+                    IsActive = true
+                }
+            };
+
+            await db.Plans.AddRangeAsync(plans);
+            await db.SaveChangesAsync();
+            Console.WriteLine("[Seeder] Default subscription plans seeded.");
+        }
     }
 }

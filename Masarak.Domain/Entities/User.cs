@@ -35,15 +35,18 @@ namespace Masarak.Domain.Entities
         /// <summary>UTC datetime until which the account is locked out. Null = not locked.</summary>
         public DateTime? LockoutEnd       { get; set; }
 
-        // ── Phase 1 Navigation ───────────────────────────────────────────────
+        // ── Phase 1 additions ← Subscription phase ─────────────────────────
+        /// <summary>8-char code generated for Student users, used by parents to link.</summary>
+        public string? StudentLinkageCode { get; set; }
+
+        // ── Navigation ───────────────────────────────────────────────────────
         public virtual Role     Role     { get; set; } = null!;
         public virtual Student? Student  { get; set; }
         public virtual Teacher? Teacher  { get; set; }
         public virtual Parent?  Parent   { get; set; }
-        public virtual ICollection<Notification>  Notifications  { get; set; } = new List<Notification>();
-        public virtual ICollection<Subscription>  Subscriptions  { get; set; } = new List<Subscription>();
-
-        // ── Phase 2 Navigation ← NEW ────────────────────────────────────────
-        public virtual ICollection<RefreshToken>  RefreshTokens  { get; set; } = new List<RefreshToken>();
+        public virtual ICollection<Notification>      Notifications      { get; set; } = new List<Notification>();
+        public virtual ICollection<Subscription>      Subscriptions      { get; set; } = new List<Subscription>();
+        public virtual ICollection<RefreshToken>      RefreshTokens      { get; set; } = new List<RefreshToken>();
+        public virtual ICollection<ParentStudentLink> ParentStudentLinks { get; set; } = new List<ParentStudentLink>();
     }
 }

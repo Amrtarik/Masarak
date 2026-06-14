@@ -1,0 +1,39 @@
+# Walkthrough: Phase 1 — Identity, Access & Subscriptions
+
+This walkthrough covers the changes introduced to implement **Phase 1: Identity, Access Management & Subscription Gating** using Clean Architecture and the existing `.NET 9` / `EF Core` structure.
+
+## What was Changed
+
+### 1. Domain Enhancements
+- **Enums Added**: `PlanType`, `SubscriptionStatus`, `ActivationMethod`, `PaymentStatus`, `PaymentProvider`.
+- **Value Objects Added**: `StudentLinkageCode` (8-character alphanumeric), `Money`.
+- **Entities Updated**:
+  - `User`: Added `StudentLinkageCode` to uniquely identify students for parental linkage.
+  - `Plan`: Added `Type` (Monthly, PerSubject, FullCurriculum), `DurationDays`.
+  - `Subscription`: Transitioned statuses to enums, added tracking fields (`StripeSessionId`, `AdminNote`, `ActivationMethod`).
+  - `Payment`: Transitioned statuses and added `StripePaymentIntentId`.
+  - **New Entity**: `ParentStudentLink` to manage parent-student access relationships mapping directly between their underlying `UserId`s.
+
+### 2. Application Layer Extensibility
+- Introduced `ISubscriptionRepository`, `IPaymentRepository`, `IPlanRepository`, `IParentStudentLinkRepository`, and `IUserRepository` interfaces.
+- Added a full suite of DTOs for checking out, viewing active plans, parent linkage, and admin activation (`SubscriptionDTOs.cs`).
+- Extracted main business logic interface: `ISubscriptionService` and Stripe integration `IStripeService`.
+
+### 3. Infrastructure Integrations
+- **EF Core Database Configuration**: Updated `Context.cs` Fluent APIs to index new columns, constrain foreign keys, and map new DbSets.
+- **Repositories**: Handled all persistence implementations internally. 
+- **Stripe Integration**: Added `StripeService` using the official `Stripe.net` library to generate Checkout sessions and handle `checkout.session.completed` webhooks.
+- **Cache-Driven Access Rules**: Added `SubscriptionAccessService` wrapping lookups in `IMemoryCache` (10-minute expiry) to prevent DB checks on every HTTP request.
+- **Background Jobs**: Introduced `SubscriptionExpiryJob` running every 6 hours using `IHostedService` to cleanly update statuses of passed end-dates.
+
+### 4. API & Routing Controls
+- **Middleware Gating**: `SubscriptionAccessMiddleware` injected to block academic endpoints for Students/Teachers if `SubscriptionAccessService.HasActiveSubscriptionAsync` returns false, responding seamlessly with an HTTP 402 Payment Required format.
+- **Controllers**:
+  - `PlanController`: Serves available plans publicly.
+  - `SubscriptionController`: Provides `/checkout`, `/webhook`, `/me/history`, and `[Authorize(Policy = AdminOnly)]` admin manual activation routes.
+  - `SecuredControllers` Extensions: Modified the `ParentController` to include `/link-student` (consuming the `StudentLinkageCode`), updated `AuthController` with `/my-linkage-code`.
+
+## Verification Steps Taken
+- **Clean Architecture Principles Retained**: Kept all business logic interfaces cleanly decoupled in `.Application` while putting implementations strictly inside `.Infrastructure`. 
+- **Build Passed**: Successfully executed a full solution build `dotnet build`.
+- **Migration Script Generated**: Generated standard EF Migration `Phase1_SubscriptionAndPaymentTables`. *(Note: Attempting to apply it to SQL Server failed due to `.` server offline locally, but the EF Model integrity passes compilation and model building).*

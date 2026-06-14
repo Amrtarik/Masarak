@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\ITI\\GradProj\\Masarak\\Masarak.Application\\Masarak.Application.csproj": {}
+    "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Application\\Masarak.Application.csproj": {}
   },
   "projects": {
-    "D:\\ITI\\GradProj\\Masarak\\Masarak.Application\\Masarak.Application.csproj": {
+    "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Application\\Masarak.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\ITI\\GradProj\\Masarak\\Masarak.Application\\Masarak.Application.csproj",
+        "projectUniqueName": "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Application\\Masarak.Application.csproj",
         "projectName": "Masarak.Application",
-        "projectPath": "D:\\ITI\\GradProj\\Masarak\\Masarak.Application\\Masarak.Application.csproj",
-        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "D:\\ITI\\GradProj\\Masarak\\Masarak.Application\\obj\\",
+        "projectPath": "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Application\\Masarak.Application.csproj",
+        "packagesPath": "C:\\Users\\hbeba\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\hbeba\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,15 +26,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\ITI\\GradProj\\Masarak\\Masarak.Domain\\Masarak.Domain.csproj": {
-                "projectPath": "D:\\ITI\\GradProj\\Masarak\\Masarak.Domain\\Masarak.Domain.csproj"
+              "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Domain\\Masarak.Domain.csproj": {
+                "projectPath": "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Domain\\Masarak.Domain.csproj"
               }
             }
           }
@@ -49,7 +48,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net9.0": {
@@ -65,43 +64,29 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[9.0.16, 9.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[9.0.16, 9.0.16]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[9.0.16, 9.0.16]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.204/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.315/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\ITI\\GradProj\\Masarak\\Masarak.Domain\\Masarak.Domain.csproj": {
+    "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Domain\\Masarak.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\ITI\\GradProj\\Masarak\\Masarak.Domain\\Masarak.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Domain\\Masarak.Domain.csproj",
         "projectName": "Masarak.Domain",
-        "projectPath": "D:\\ITI\\GradProj\\Masarak\\Masarak.Domain\\Masarak.Domain.csproj",
-        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "D:\\ITI\\GradProj\\Masarak\\Masarak.Domain\\obj\\",
+        "projectPath": "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Domain\\Masarak.Domain.csproj",
+        "packagesPath": "C:\\Users\\hbeba\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\hbeba\\source\\repos\\Masarak\\Masarak.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\hbeba\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -110,7 +95,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -129,7 +113,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net9.0": {
@@ -145,26 +129,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[9.0.16, 9.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[9.0.16, 9.0.16]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[9.0.16, 9.0.16]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.204/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.315/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

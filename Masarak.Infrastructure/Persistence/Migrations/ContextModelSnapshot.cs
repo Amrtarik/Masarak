@@ -344,6 +344,36 @@ namespace Masarak.Infrastructure.Persistence.Migrations
                     b.ToTable("parent_student", (string)null);
                 });
 
+            modelBuilder.Entity("Masarak.Domain.Entities.ParentStudentLink", b =>
+                {
+                    b.Property<int>("ParentStudentLinkId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ParentStudentLinkId"));
+
+                    b.Property<DateTime>("LinkedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("ParentUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ParentStudentLinkId");
+
+                    b.HasIndex("StudentUserId");
+
+                    b.HasIndex("ParentUserId", "StudentUserId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_parent_student_links_Parent_Student");
+
+                    b.ToTable("parent_student_links", (string)null);
+                });
+
             modelBuilder.Entity("Masarak.Domain.Entities.Payment", b =>
                 {
                     b.Property<int>("PaymentId")
@@ -379,10 +409,23 @@ namespace Masarak.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("PaidAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("StripeChargeId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("StripePaymentIntentId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("SubscriptionId")
                         .HasColumnType("int");
@@ -411,6 +454,11 @@ namespace Masarak.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DurationDays")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(30);
 
                     b.Property<bool>("HasAi")
                         .ValueGeneratedOnAdd()
@@ -447,6 +495,11 @@ namespace Masarak.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal?>("PriceYearly")
                         .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("PlanId");
 
@@ -915,6 +968,18 @@ namespace Masarak.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubscriptionId"));
 
+                    b.Property<int?>("ActivatedByAdminId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ActivationMethod")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("AdminNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<bool>("AutoRenew")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -943,10 +1008,16 @@ namespace Masarak.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Active");
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("StripeSessionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("StripeSubscriptionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -955,7 +1026,11 @@ namespace Masarak.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PlanId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("StripeSessionId")
+                        .HasDatabaseName("IX_subscriptions_StripeSessionId");
+
+                    b.HasIndex("UserId", "Status")
+                        .HasDatabaseName("IX_subscriptions_UserId_Status");
 
                     b.ToTable("subscriptions", (string)null);
                 });
@@ -1087,6 +1162,10 @@ namespace Masarak.Infrastructure.Persistence.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
+                    b.Property<string>("StudentLinkageCode")
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
                     b.HasKey("UserId");
 
                     b.HasIndex("Email")
@@ -1094,6 +1173,11 @@ namespace Masarak.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("UX_users_Email");
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("StudentLinkageCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_users_StudentLinkageCode")
+                        .HasFilter("[StudentLinkageCode] IS NOT NULL");
 
                     b.ToTable("users", (string)null);
                 });
@@ -1194,6 +1278,25 @@ namespace Masarak.Infrastructure.Persistence.Migrations
                     b.HasOne("Masarak.Domain.Entities.Student", "Student")
                         .WithMany("ParentStudents")
                         .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Masarak.Domain.Entities.ParentStudentLink", b =>
+                {
+                    b.HasOne("Masarak.Domain.Entities.User", "Parent")
+                        .WithMany("ParentStudentLinks")
+                        .HasForeignKey("ParentUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Masarak.Domain.Entities.User", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1545,6 +1648,8 @@ namespace Masarak.Infrastructure.Persistence.Migrations
                     b.Navigation("Notifications");
 
                     b.Navigation("Parent");
+
+                    b.Navigation("ParentStudentLinks");
 
                     b.Navigation("RefreshTokens");
 

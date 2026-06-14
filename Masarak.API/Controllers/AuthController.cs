@@ -127,6 +127,21 @@ namespace Masarak.API.Controllers
             return user == null ? NotFound() : Ok(user);
         }
 
+        // GET /api/auth/my-linkage-code
+        [HttpGet("my-linkage-code")]
+        [Authorize(Policy = AppPolicies.StudentOnly)]
+        [ProducesResponseType(typeof(string), 200)]
+        public async Task<IActionResult> GetMyLinkageCode([FromServices] ISubscriptionService subscriptionService)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized();
+
+            var code = await subscriptionService.GetStudentLinkageCodeAsync(userId.Value);
+            if (code == null) return BadRequest(new { message = "Only students have linkage codes." });
+
+            return Ok(new { linkageCode = code });
+        }
+
         // ─── Helpers ─────────────────────────────────────────────────────────────
         private int? GetCurrentUserId()
         {
