@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Masarak.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e562bed87be00a0a8eb2c33df506514842eee11a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+58d09afec4d157a2e191f2dc5c48366b697a5834")]
 [assembly: System.Reflection.AssemblyProductAttribute("Masarak.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Masarak.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
