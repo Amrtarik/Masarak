@@ -174,6 +174,41 @@ namespace Masarak.Infrastructure.Services
             return Ok("Password changed. Please log in again on all devices.");
         }
 
+        public async Task<MessageResponse> ForgotPasswordAsync(ForgotPasswordRequest request)
+        {
+            var email = request.Email.Trim().ToLowerInvariant();
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null) return Fail2("No account found with this email address.");
+
+            var token = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+            user.PasswordResetToken = token;
+            user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+
+            await _db.SaveChangesAsync();
+
+            return Ok($"Reset token generated: {token}");
+        }
+
+        public async Task<MessageResponse> ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            var token = request.Token.Trim().ToUpper();
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.PasswordResetToken == token);
+
+            if (user == null || !user.PasswordResetTokenExpiry.HasValue || user.PasswordResetTokenExpiry.Value < DateTime.UtcNow)
+            {
+                return Fail2("Invalid or expired password reset token.");
+            }
+
+            user.PasswordHash = _passwordService.HashPassword(request.NewPassword);
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = null;
+
+            await CascadeRevokeAsync(user.UserId, "Password reset");
+            await _db.SaveChangesAsync();
+
+            return Ok("Password has been reset successfully. You can now log in with your new password.");
+        }
+
         public async Task<UserInfoDto?> GetCurrentUserAsync(int userId)
         {
             var user = await _db.Users.Include(u => u.Role)

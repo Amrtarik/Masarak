@@ -39,6 +39,12 @@ namespace Masarak.Domain.Entities
         /// <summary>8-char code generated for Student users, used by parents to link.</summary>
         public string? StudentLinkageCode { get; set; }
 
+        // ── Password Reset ───────────────────────────────────────────────────
+        /// <summary>Secure random token sent to the user for password reset.</summary>
+        public string?   PasswordResetToken       { get; set; }
+        /// <summary>UTC expiry for the reset token (1 hour from generation).</summary>
+        public DateTime? PasswordResetTokenExpiry { get; set; }
+
         // ── Navigation ───────────────────────────────────────────────────────
         public virtual Role     Role     { get; set; } = null!;
         public virtual Student? Student  { get; set; }

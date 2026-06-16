@@ -91,6 +91,34 @@ namespace Masarak.API.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
+        // POST /api/auth/forgot-password
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(MessageResponse), 200)]
+        [ProducesResponseType(typeof(MessageResponse), 400)]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _authService.ForgotPasswordAsync(request);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // POST /api/auth/reset-password
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(MessageResponse), 200)]
+        [ProducesResponseType(typeof(MessageResponse), 400)]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _authService.ResetPasswordAsync(request);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
         // POST /api/auth/revoke-token
         [HttpPost("revoke-token")]
         [Authorize]

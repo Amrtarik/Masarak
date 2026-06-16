@@ -68,6 +68,26 @@ namespace Masarak.Application.DTOs
         public string ConfirmNewPassword { get; set; } = null!;
     }
 
+    // ─── Forgot Password ─────────────────────────────────────────────────────────
+    public class ForgotPasswordRequest
+    {
+        [Required, EmailAddress]
+        public string Email { get; set; } = null!;
+    }
+
+    // ─── Reset Password ──────────────────────────────────────────────────────────
+    public class ResetPasswordRequest
+    {
+        [Required]
+        public string Token { get; set; } = null!;
+
+        [Required, MinLength(8)]
+        public string NewPassword { get; set; } = null!;
+
+        [Required, Compare(nameof(NewPassword), ErrorMessage = "Passwords do not match.")]
+        public string ConfirmNewPassword { get; set; } = null!;
+    }
+
     // ─── Responses ───────────────────────────────────────────────────────────────
     public class AuthResponse
     {

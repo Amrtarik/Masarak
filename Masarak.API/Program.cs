@@ -30,7 +30,13 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorizationPolicies();
 
 // ── Controllers ───────────────────────────────────────────────────────────────
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Serialize enums as strings ("Active", "Pending") not integers (0, 1)
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 
 // ── Swagger with JWT support ──────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();

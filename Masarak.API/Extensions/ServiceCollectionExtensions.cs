@@ -136,7 +136,23 @@ namespace Masarak.API.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             // Core
-            services.AddMemoryCache();
+            services.AddMemoryCache(); // Keep this for other non-distributed cache usages if any
+            
+            // Distributed Cache (Redis)
+            var redisConnectionString = configuration.GetConnectionString("Redis");
+            if (!string.IsNullOrEmpty(redisConnectionString))
+            {
+                services.AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = redisConnectionString;
+                    options.InstanceName = "Masarak_";
+                });
+            }
+            else
+            {
+                // Fallback for development if Redis is not available
+                services.AddDistributedMemoryCache();
+            }
             
             // Auth Services
             services.AddScoped<IAuthService, AuthService>();

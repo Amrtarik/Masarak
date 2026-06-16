@@ -86,13 +86,14 @@ namespace Masarak.Infrastructure.Services
                         Currency = subscription.Plan.Currency,
                         Status = PaymentStatus.Completed,
                         Provider = PaymentProvider.Stripe,
+                        Gateway = "Stripe",
                         StripePaymentIntentId = paymentIntentId,
                         CreatedAt = DateTime.UtcNow,
                         PaidAt = DateTime.UtcNow
                     };
                     await _paymentRepository.AddAsync(payment, ct);
 
-                    _accessService.InvalidateCache(subscription.UserId);
+                    await _accessService.InvalidateCacheAsync(subscription.UserId);
                 }
             }
         }
@@ -127,12 +128,13 @@ namespace Masarak.Infrastructure.Services
                 Currency = plan.Currency,
                 Status = PaymentStatus.Completed,
                 Provider = PaymentProvider.Manual,
+                Gateway = "Manual",
                 CreatedAt = DateTime.UtcNow,
                 PaidAt = DateTime.UtcNow
             };
             await _paymentRepository.AddAsync(payment, ct);
 
-            _accessService.InvalidateCache(request.StudentUserId);
+            await _accessService.InvalidateCacheAsync(request.StudentUserId);
             
             // Reload with user to map DTO
             var loadedSub = await _subscriptionRepository.GetByIdAsync(subscription.SubscriptionId, ct);
@@ -148,7 +150,7 @@ namespace Masarak.Infrastructure.Services
             subscription.AdminNote = $"Cancelled by Admin {adminId}. Reason: {reason}. Previous Note: {subscription.AdminNote}";
             
             await _subscriptionRepository.UpdateAsync(subscription, ct);
-            _accessService.InvalidateCache(subscription.UserId);
+            await _accessService.InvalidateCacheAsync(subscription.UserId);
         }
 
         public async Task<PagedResult<SubscriptionDto>> GetAllSubscriptionsAsync(int pageNumber, int pageSize, SubscriptionStatus? status, CancellationToken ct = default)

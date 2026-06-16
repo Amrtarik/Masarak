@@ -50,7 +50,7 @@ namespace Masarak.Infrastructure.Services
             {
                 sub.Status = SubscriptionStatus.Expired;
                 await repo.UpdateAsync(sub, stoppingToken);
-                accessService.InvalidateCache(sub.UserId);
+                await accessService.InvalidateCacheAsync(sub.UserId);
                 count++;
             }
 

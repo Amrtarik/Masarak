@@ -1,2 +1,10 @@
-".vs/" 
-".refactor.ps1"
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+.vs/
+*.user
+*.suo
+*.log
+appsettings.Development.json
+stripe.exe
+tatus

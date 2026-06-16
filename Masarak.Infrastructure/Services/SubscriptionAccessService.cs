@@ -1,15 +1,16 @@
 using Masarak.Application.Interfaces;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 namespace Masarak.Infrastructure.Services
 {
     public class SubscriptionAccessService : ISubscriptionAccessService
     {
         private readonly ISubscriptionRepository _subscriptionRepository;
-        private readonly IMemoryCache _cache;
+        private readonly IDistributedCache _cache;
         private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(10);
 
-        public SubscriptionAccessService(ISubscriptionRepository subscriptionRepository, IMemoryCache cache)
+        public SubscriptionAccessService(ISubscriptionRepository subscriptionRepository, IDistributedCache cache)
         {
             _subscriptionRepository = subscriptionRepository;
             _cache = cache;
@@ -19,22 +20,31 @@ namespace Masarak.Infrastructure.Services
         {
             var cacheKey = $"subscription:active:{userId}";
 
-            if (_cache.TryGetValue(cacheKey, out bool isActive))
+            var cachedValue = await _cache.GetStringAsync(cacheKey, ct);
+            if (!string.IsNullOrEmpty(cachedValue))
             {
-                return isActive;
+                if (bool.TryParse(cachedValue, out bool isActive))
+                {
+                    return isActive;
+                }
             }
 
             var activeSub = await _subscriptionRepository.GetActiveByUserIdAsync(userId, ct);
             var hasActive = activeSub != null;
 
-            _cache.Set(cacheKey, hasActive, CacheDuration);
+            await _cache.SetStringAsync(
+                cacheKey, 
+                hasActive.ToString(), 
+                new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = CacheDuration },
+                ct);
+
             return hasActive;
         }
 
-        public void InvalidateCache(int userId)
+        public async Task InvalidateCacheAsync(int userId)
         {
             var cacheKey = $"subscription:active:{userId}";
-            _cache.Remove(cacheKey);
+            await _cache.RemoveAsync(cacheKey);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Masarak.Infrastructure.Services
                         PriceData = new SessionLineItemPriceDataOptions
                         {
                             UnitAmountDecimal = price * 100, // Stripe uses smallest currency unit
-                            Currency = currency,
+                            Currency = currency.ToLowerInvariant(),
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
                                 Name = planName,

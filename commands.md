@@ -22,6 +22,24 @@ dotnet run --project "Masarak.API"
 ```
 *Alternatively, you can navigate directly into `Masarak.API` and run `dotnet run`.*
 
+
+1. Force-kill the stuck processes:
+
+powershell
+
+`taskkill /IM Masarak.API.exe /F`
+`taskkill /IM dotnet.exe /F`
+
+(The /IM flag targets the "Image Name" or process name, and the /F flag forcefully terminates them).
+
+2. Clean the old files and rebuild:
+
+powershell
+
+`dotnet clean Masarak.API/Masarak.API.csproj`
+`dotnet build Masarak.API/Masarak.API.csproj`
+
+Whenever ASP.NET gets stuck holding onto a file lock, running those taskkill commands will quickly clear it out for you!
 ---
 
 ## 2. Entity Framework Core Commands

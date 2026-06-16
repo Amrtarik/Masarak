@@ -39,6 +39,11 @@ namespace Masarak.API.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+            catch (Exception ex)
+            {
+                // Return the exact exception to the frontend to easily debug Stripe errors
+                return StatusCode(500, new { message = ex.Message, stackTrace = ex.StackTrace });
+            }
         }
 
         // POST /api/subscriptions/webhook
@@ -70,15 +75,18 @@ namespace Masarak.API.Controllers
         // GET /api/subscriptions/me
         [HttpGet("me")]
         [Authorize(Policy = AppPolicies.AnyAuthenticated)]
-        [ProducesResponseType(typeof(SubscriptionDto), 200)]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(typeof(SubscriptionStatusResponse), 200)]
         public async Task<IActionResult> GetMyActiveSubscription()
         {
             var userId = GetCurrentUserId();
             if (userId == null) return Unauthorized();
 
             var sub = await _subscriptionService.GetActiveSubscriptionAsync(userId.Value);
-            return sub != null ? Ok(sub) : NoContent();
+            var response = new SubscriptionStatusResponse(
+                HasActiveSubscription: sub != null,
+                ActiveSubscription: sub
+            );
+            return Ok(response);
         }
 
         // GET /api/subscriptions/me/history
@@ -113,6 +121,10 @@ namespace Masarak.API.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         // POST /api/subscriptions/admin/cancel/{id}
@@ -133,6 +145,10 @@ namespace Masarak.API.Controllers
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 

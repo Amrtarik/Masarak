@@ -9,6 +9,6 @@ namespace Masarak.Application.Interfaces
         Task<bool> HasActiveSubscriptionAsync(int userId, CancellationToken ct = default);
 
         /// <summary>Invalidates the cached subscription status for a user.</summary>
-        void InvalidateCache(int userId);
+        Task InvalidateCacheAsync(int userId);
     }
 }
