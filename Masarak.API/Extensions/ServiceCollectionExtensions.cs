@@ -159,6 +159,10 @@ namespace Masarak.API.Extensions
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IPasswordService, PasswordService>();
 
+            // Email Service
+            services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
+            services.AddScoped<IEmailService, EmailService>();
+
             // Subscription Services
             services.Configure<StripeSettings>(configuration.GetSection("StripeSettings"));
             services.AddScoped<ISubscriptionRepository, Masarak.Infrastructure.Persistence.Repositories.SubscriptionRepository>();

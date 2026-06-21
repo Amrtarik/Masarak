@@ -17,6 +17,7 @@ namespace Masarak.Infrastructure.Services
         private readonly IJwtService _jwtService;
         private readonly IPasswordService _passwordService;
         private readonly JwtSettings _jwtSettings;
+        private readonly IEmailService _emailService;
 
         private const int MaxFailedAttempts = 5;
         private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
@@ -25,12 +26,14 @@ namespace Masarak.Infrastructure.Services
             Context db,
             IJwtService jwtService,
             IPasswordService passwordService,
-            IOptions<JwtSettings> jwtSettings)
+            IOptions<JwtSettings> jwtSettings,
+            IEmailService emailService)
         {
             _db = db;
             _jwtService = jwtService;
             _passwordService = passwordService;
             _jwtSettings = jwtSettings.Value;
+            _emailService = emailService;
         }
 
         public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
@@ -186,7 +189,10 @@ namespace Masarak.Infrastructure.Services
 
             await _db.SaveChangesAsync();
 
-            return Ok($"Reset token generated: {token}");
+            // Send the token to the user's registered email address.
+            await _emailService.SendPasswordResetEmailAsync(user.Email, user.FullName, token);
+
+            return Ok("If an account exists for that email, a password reset code has been sent.");
         }
 
         public async Task<MessageResponse> ResetPasswordAsync(ResetPasswordRequest request)
