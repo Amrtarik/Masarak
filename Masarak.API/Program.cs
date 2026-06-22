@@ -5,6 +5,7 @@ using Masarak.Infrastructure.Persistence.Seeders;
 using Masarak.Application.Interfaces;
 using Masarak.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,11 +18,26 @@ builder.Services.AddDbContext<Context>(options =>
             sql.MigrationsAssembly("Masarak.Infrastructure");
         }));
 
-// ── Application Services ──────────────────────────────────────────────────────
+// ── HTTP Context Accessor (needed by LocalFileStorageService) ────────────────
+builder.Services.AddHttpContextAccessor();
+
+// ── Application Services ──
 builder.Services.AddApplicationServices(builder.Configuration);
 
-// ── Background Jobs ───────────────────────────────────────────────────────────
-builder.Services.AddHostedService<SubscriptionExpiryJob>();
+// ── Background Jobs ──
+builder.Services.AddHostedService<Masarak.Infrastructure.Services.ExamAutoExpireJob>();
+
+// ── MassTransit ──
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<Masarak.Infrastructure.Messaging.ExamGradedConsumer>();
+    x.AddConsumer<Masarak.Infrastructure.Messaging.AssignmentGradedConsumer>();
+
+    x.UsingInMemory((context, cfg) =>
+    {
+        cfg.ConfigureEndpoints(context);
+    });
+});
 
 // ── JWT Authentication ────────────────────────────────────────────────────────
 builder.Services.AddJwtAuthentication(builder.Configuration);

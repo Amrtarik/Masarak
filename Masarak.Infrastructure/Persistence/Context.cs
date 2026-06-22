@@ -376,8 +376,10 @@ namespace Masarak.Infrastructure.Persistence
                 e.Property(x => x.AssignmentId).ValueGeneratedOnAdd();
                 e.Property(x => x.Title).HasMaxLength(255).IsRequired();
                 e.Property(x => x.Description).HasColumnType("nvarchar(max)");
+                e.Property(x => x.Instructions).HasColumnType("nvarchar(max)");
                 e.Property(x => x.DueDate).IsRequired();
                 e.Property(x => x.MaxScore).HasColumnType("decimal(6,2)").HasDefaultValue(100m);
+                e.Property(x => x.Status).HasConversion<string>().HasMaxLength(30).HasDefaultValue(AssignmentStatus.Draft);
                 e.Property(x => x.CreatedAt).HasDefaultValueSql("GETDATE()");
 
                 e.HasOne(x => x.TeachingAssignment)
@@ -396,10 +398,11 @@ namespace Masarak.Infrastructure.Persistence
                 e.Property(x => x.SubmissionId).ValueGeneratedOnAdd();
                 e.Property(x => x.SubmittedAt).HasDefaultValueSql("GETDATE()");
                 e.Property(x => x.FileUrl).HasMaxLength(500);
+                e.Property(x => x.FileBlobName).HasMaxLength(255);
                 e.Property(x => x.AnswerText).HasColumnType("nvarchar(max)");
                 e.Property(x => x.Score).HasColumnType("decimal(6,2)");
                 e.Property(x => x.Feedback).HasColumnType("nvarchar(max)");
-                e.Property(x => x.Status).HasMaxLength(20).HasDefaultValue("Submitted");
+                e.Property(x => x.Status).HasConversion<string>().HasMaxLength(30).HasDefaultValue(SubmissionStatus.Submitted);
                 e.HasIndex(x => new { x.AssignmentId, x.StudentId })
                  .IsUnique().HasDatabaseName("UX_submissions_Assignment_Student");
 
@@ -423,11 +426,17 @@ namespace Masarak.Infrastructure.Persistence
                 e.HasKey(x => x.ExamId);
                 e.Property(x => x.ExamId).ValueGeneratedOnAdd();
                 e.Property(x => x.Title).HasMaxLength(255).IsRequired();
+                e.Property(x => x.Instructions).HasColumnType("nvarchar(max)");
                 e.Property(x => x.StartTime).IsRequired();
                 e.Property(x => x.EndTime).IsRequired();
                 e.Property(x => x.DurationMins).IsRequired();
                 e.Property(x => x.MaxScore).HasColumnType("decimal(6,2)").HasDefaultValue(100m);
+                e.Property(x => x.TotalMarks).HasColumnType("decimal(6,2)").HasDefaultValue(0m);
+                e.Property(x => x.Status).HasConversion<string>().HasMaxLength(30).HasDefaultValue(ExamStatus.Draft);
                 e.Property(x => x.ExamType).HasMaxLength(50).HasDefaultValue("Quiz");
+                e.Property(x => x.CreatedAt).HasDefaultValueSql("GETDATE()");
+
+                e.HasIndex(e => new { e.AssignmentId, e.StartTime });
 
                 e.HasOne(x => x.TeachingAssignment)
                  .WithMany(ta => ta.Exams)
@@ -444,16 +453,32 @@ namespace Masarak.Infrastructure.Persistence
                 e.HasKey(x => x.QuestionId);
                 e.Property(x => x.QuestionId).ValueGeneratedOnAdd();
                 e.Property(x => x.QuestionText).HasColumnType("nvarchar(max)").IsRequired();
-                e.Property(x => x.QuestionType).HasMaxLength(30).IsRequired();
-                e.Property(x => x.Options).HasColumnType("nvarchar(max)");
+                e.Property(x => x.Type).HasConversion<string>().HasMaxLength(30).IsRequired();
+                e.Property(x => x.Difficulty).HasConversion<string>().HasMaxLength(20).HasDefaultValue(DifficultyLevel.Medium);
+                e.Property(x => x.ImageUrl).HasMaxLength(500);
                 e.Property(x => x.CorrectAns).HasColumnType("nvarchar(max)");
                 e.Property(x => x.Marks).HasColumnType("decimal(5,2)").HasDefaultValue(1m);
                 e.Property(x => x.OrderNum).HasDefaultValue(1);
+
+                e.HasQueryFilter(q => q.ExamId != null); // Default exclude question bank by default
 
                 e.HasOne(x => x.Exam)
                  .WithMany(ex => ex.Questions)
                  .HasForeignKey(x => x.ExamId)
                  .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<QuestionOption>(e =>
+            {
+                e.ToTable("question_options");
+                e.HasKey(x => x.QuestionOptionId);
+                e.Property(x => x.QuestionOptionId).ValueGeneratedOnAdd();
+                e.Property(x => x.Text).HasColumnType("nvarchar(max)").IsRequired();
+                
+                e.HasOne(x => x.Question)
+                 .WithMany(q => q.Options)
+                 .HasForeignKey(x => x.QuestionId)
+                 .OnDelete(DeleteBehavior.Cascade);
             });
 
             // ═══════════════════════════════════════════════════════════════════
@@ -465,7 +490,11 @@ namespace Masarak.Infrastructure.Persistence
                 e.HasKey(x => x.StudentExamId);
                 e.Property(x => x.StudentExamId).ValueGeneratedOnAdd();
                 e.Property(x => x.TotalScore).HasColumnType("decimal(6,2)");
-                e.Property(x => x.Status).HasMaxLength(20).HasDefaultValue("Pending");
+                e.Property(x => x.TotalAutoScore).HasColumnType("decimal(6,2)");
+                e.Property(x => x.TotalManualScore).HasColumnType("decimal(6,2)");
+                e.Property(x => x.FinalScore).HasColumnType("decimal(6,2)");
+                e.Property(x => x.Status).HasConversion<string>().HasMaxLength(30).HasDefaultValue(StudentExamStatus.InProgress);
+                e.Property(x => x.HasPendingManualGrading).HasDefaultValue(false);
                 e.HasIndex(x => new { x.ExamId, x.StudentId })
                  .IsUnique().HasDatabaseName("UX_student_exams_Exam_Student");
 
@@ -489,9 +518,18 @@ namespace Masarak.Infrastructure.Persistence
                 e.HasKey(x => x.AnswerId);
                 e.Property(x => x.AnswerId).ValueGeneratedOnAdd();
                 e.Property(x => x.AnswerText).HasColumnType("nvarchar(max)");
+                e.Property(x => x.SelectedOptionId).HasMaxLength(50);
+                e.Property(x => x.FileBlobName).HasMaxLength(255);
+                e.Property(x => x.FileUrl).HasMaxLength(500);
+                e.Property(x => x.GradingStatus).HasConversion<string>().HasMaxLength(30).HasDefaultValue(AnswerGradingStatus.PendingReview);
                 e.Property(x => x.MarksAwarded).HasColumnType("decimal(5,2)");
+                e.Property(x => x.TeacherFeedback).HasColumnType("nvarchar(max)");
+                
                 e.HasIndex(x => new { x.StudentExamId, x.QuestionId })
                  .IsUnique().HasDatabaseName("UX_student_answers_Exam_Question");
+
+                // Used for Teacher grading dashboard
+                e.HasIndex(x => x.GradingStatus).HasFilter("[GradingStatus] = 'PendingReview'");
 
                 e.HasOne(x => x.StudentExam)
                  .WithMany(se => se.StudentAnswers)
@@ -520,6 +558,7 @@ namespace Masarak.Infrastructure.Persistence
                 e.Property(x => x.GradeLetter).HasMaxLength(2);
                 e.Property(x => x.Remarks).HasColumnType("nvarchar(max)");
                 e.Property(x => x.UpdatedAt).HasDefaultValueSql("GETDATE()");
+                
                 e.HasIndex(x => new { x.StudentId, x.SubjectId, x.AcademicYear })
                  .IsUnique().HasDatabaseName("UX_student_performance_Student_Subject_Year");
 

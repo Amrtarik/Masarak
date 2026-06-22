@@ -186,6 +186,16 @@ namespace Masarak.API.Extensions
             services.AddSingleton<Masarak.Domain.Services.ScheduleConflictChecker>();
             services.AddScoped<IAcademicService, AcademicService>();
             services.AddScoped<ISessionService, SessionService>();
+
+            // ── Phase 3 Assessment Core ───────────────────────────────────────
+            services.AddScoped<IAssignmentRepository, Masarak.Infrastructure.Persistence.Repositories.AssignmentRepository>();
+            services.AddScoped<IExamRepository, Masarak.Infrastructure.Persistence.Repositories.ExamRepository>();
+            services.AddScoped<IStudentExamRepository, Masarak.Infrastructure.Persistence.Repositories.StudentExamRepository>();
+            services.AddScoped<ISubmissionRepository, Masarak.Infrastructure.Persistence.Repositories.SubmissionRepository>();
+            services.AddScoped<IStudentPerformanceRepository, Masarak.Infrastructure.Persistence.Repositories.StudentPerformanceRepository>();
+            
+            services.AddScoped<IFileStorageService, LocalFileStorageService>();
+            services.AddScoped<IAssessmentService, AssessmentService>();
             
             return services;
         }

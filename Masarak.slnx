@@ -3,4 +3,5 @@
   <Project Path="Masarak.Application/Masarak.Application.csproj" />
   <Project Path="Masarak.Domain/Masarak.Domain.csproj" />
   <Project Path="Masarak.Infrastructure/Masarak.Infrastructure.csproj" />
+  <Project Path="Masarak.Tests/Masarak.Tests.csproj" />
 </Solution>
