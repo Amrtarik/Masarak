@@ -103,6 +103,10 @@ namespace Masarak.Infrastructure.Services
             var plan = await _planRepository.GetByIdAsync(request.PlanId, ct);
             if (plan == null) throw new InvalidOperationException("Plan not found.");
 
+            var studentUser = await _userRepository.GetByIdAsync(request.StudentUserId, ct);
+            if (studentUser == null) throw new InvalidOperationException("User not found.");
+            if (studentUser.Role.Name != "Student") throw new InvalidOperationException("Subscription can only be activated for Student users.");
+
             var activeSub = await _subscriptionRepository.GetActiveByUserIdAsync(request.StudentUserId, ct);
             if (activeSub != null) throw new InvalidOperationException("Student already has an active subscription.");
 
