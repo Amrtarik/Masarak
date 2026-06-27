@@ -282,6 +282,60 @@ namespace Masarak.Infrastructure.Services.AI
                 DateTime.UtcNow);
         }
 
+        public async Task<StudentInsightDto> GetStudentInsightAsync(
+            int teacherUserId, int studentUserId, int subjectId, CancellationToken ct)
+        {
+            var student = await _context.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.UserId == studentUserId, ct)
+                ?? throw new KeyNotFoundException("Student not found");
+            var subject = await _context.Subjects.FindAsync(new object[] { subjectId }, ct)
+                ?? throw new KeyNotFoundException("Subject not found");
+
+            // Get weakness analysis
+            var weaknessRec = await _context.AiRecommendations
+                .Where(r => r.StudentUserId == studentUserId
+                         && r.SubjectId == subjectId
+                         && r.Type == RecommendationType.WeaknessAnalysis
+                         && r.IsActive)
+                .OrderByDescending(r => r.GeneratedAt)
+                .FirstOrDefaultAsync(ct);
+
+            IEnumerable<WeakTopicDto> weakTopics = Enumerable.Empty<WeakTopicDto>();
+            if (weaknessRec != null)
+            {
+                var data = TryDeserialize<WeaknessAnalysisPayload>(weaknessRec.Payload);
+                weakTopics = data?.WeakTopics?.Select(w => new WeakTopicDto(w.TopicName, w.ErrorRate, w.RecommendedActions ?? Enumerable.Empty<string>())) ?? Enumerable.Empty<WeakTopicDto>();
+            }
+
+            // Get alerts
+            var alerts = await _alertRepo.GetUnresolvedByStudentAsync(studentUserId, ct);
+            var subjectAlerts = alerts.Where(a => a.SubjectId == subjectId)
+                .Select(a => MapAlertDto(a, student.User.FullName, subject.Name)).ToList();
+
+            // Get latest teaching suggestion
+            var suggestionRec = await _context.AiRecommendations
+                .Where(r => r.StudentUserId == studentUserId
+                         && r.SubjectId == subjectId
+                         && r.Type == RecommendationType.TeachingSuggestion
+                         && r.IsActive)
+                .OrderByDescending(r => r.GeneratedAt)
+                .FirstOrDefaultAsync(ct);
+
+            TeachingSuggestionDto? latestSuggestion = null;
+            if (suggestionRec != null)
+            {
+                latestSuggestion = TryDeserialize<TeachingSuggestionDto>(suggestionRec.Payload);
+            }
+
+            return new StudentInsightDto(
+                student.User.FullName,
+                subject.Name,
+                weakTopics,
+                subjectAlerts,
+                latestSuggestion);
+        }
+
         // ── Admin: Platform Analytics ───────────────────────────────────────
         public async Task<PlatformAnalyticsDto> GetPlatformAnalyticsAsync(
             int academicYear, CancellationToken ct)

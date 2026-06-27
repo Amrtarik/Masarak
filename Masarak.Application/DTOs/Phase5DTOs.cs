@@ -48,6 +48,14 @@ namespace Masarak.Application.DTOs
         IEnumerable<string> ActionItems,
         DateTime GeneratedAt);
 
+    public record StudentInsightDto(
+        string StudentName,
+        string SubjectName,
+        IEnumerable<WeakTopicDto> WeakTopics,
+        IEnumerable<PerformanceAlertDto> ActiveAlerts,
+        TeachingSuggestionDto? LatestSuggestion);
+
+
     // ═══════════════════════════════════════════════════════════════════
     // Phase 5 — Dashboard DTOs
     // ═══════════════════════════════════════════════════════════════════

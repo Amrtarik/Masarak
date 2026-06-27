@@ -21,6 +21,8 @@ namespace Masarak.Application.Interfaces
         // ── Teacher-Facing ──────────────────────────────────────────────────
         Task<ClassAnalyticsDashboardDto> GetClassAnalyticsAsync(int teacherUserId, int classId, int subjectId, int academicYear, CancellationToken ct);
         Task<TeachingSuggestionDto> GenerateTeachingSuggestionAsync(int teacherUserId, int studentUserId, int subjectId, CancellationToken ct);
+        Task<StudentInsightDto> GetStudentInsightAsync(int teacherUserId, int studentUserId, int subjectId, CancellationToken ct);
+
 
         // ── Admin-Facing ────────────────────────────────────────────────────
         Task<PlatformAnalyticsDto> GetPlatformAnalyticsAsync(int academicYear, CancellationToken ct);

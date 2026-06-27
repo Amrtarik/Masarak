@@ -26,6 +26,16 @@ namespace Masarak.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>Get per-student insight including weak topics, alerts, and latest suggestion.</summary>
+        [HttpGet("students/{studentId}/insights/{subjectId}")]
+        public async Task<IActionResult> GetStudentInsight(
+            int studentId, int subjectId, CancellationToken ct = default)
+        {
+            var result = await _aiService.GetStudentInsightAsync(GetUserId(), studentId, subjectId, ct);
+            return Ok(result);
+        }
+
+
         /// <summary>Generate AI teaching suggestion for a specific student in a subject.</summary>
         [HttpPost("students/{studentId}/suggestions/{subjectId}")]
         public async Task<IActionResult> GenerateTeachingSuggestion(
