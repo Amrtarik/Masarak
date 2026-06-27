@@ -1,0 +1,353 @@
+<div class="um-page font-sans" dir="rtl">
+
+  <!-- ── Page header ─────────────────────────────────────────────── -->
+  <div class="um-header">
+    <div>
+      <h1 class="um-title">إدارة المستخدمين</h1>
+      <p class="um-subtitle">عرض وإدارة جميع مستخدمي المنصة</p>
+    </div>
+    <nav class="um-breadcrumb">
+      <span>لوحة التحكم</span>
+      <span class="sep">/</span>
+      <span class="active">المستخدمون</span>
+    </nav>
+  </div>
+
+  <!-- ── Global feedback ─────────────────────────────────────────── -->
+  <div *ngIf="feedback()"
+    class="um-feedback"
+    [class.is-success]="feedbackType() === 'success'"
+    [class.is-error]="feedbackType() === 'error'">
+    <span class="icon">{{ feedbackType() === 'success' ? '✓' : '✕' }}</span>
+    {{ feedback() }}
+  </div>
+
+  <!-- ── Tabs ────────────────────────────────────────────────────── -->
+  <div class="um-tabs">
+    <button class="um-tab" [class.active]="activeTab() === 'users'" (click)="activeTab.set('users')">
+      👥 المستخدمون
+    </button>
+    <button class="um-tab" [class.active]="activeTab() === 'subscriptions'" (click)="activeTab.set('subscriptions')">
+      🎫 إضافة اشتراك
+    </button>
+  </div>
+
+  <!-- ══════════════ TAB 1: Users Table ══════════════ -->
+  <div *ngIf="activeTab() === 'users'" class="um-card">
+
+    <!-- Toolbar -->
+    <div class="um-toolbar">
+      <div class="um-search-wrap">
+        <span class="search-icon">🔍</span>
+        <input
+          class="um-search"
+          placeholder="بحث بالاسم أو البريد..."
+          [(ngModel)]="searchQuery"
+        />
+      </div>
+
+      <select class="um-select" [(ngModel)]="roleFilter">
+        <option value="">كل الأدوار</option>
+        <option value="Student">طالب</option>
+        <option value="Teacher">معلم</option>
+        <option value="Admin">مدير</option>
+        <option value="Parent">ولي أمر</option>
+      </select>
+
+      <button class="um-btn-primary" (click)="openAddModal()">
+        ＋ إضافة مستخدم
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoadingUsers()" class="um-loading">
+      <div class="spinner"></div>
+      <p>جاري تحميل المستخدمين...</p>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!isLoadingUsers()" class="um-table-wrap">
+      <table class="um-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>المستخدم</th>
+            <th>الدور</th>
+            <th>الحالة</th>
+            <th>الاشتراك</th>
+            <th>نوع الاشتراك</th>
+            <th>تاريخ الانضمام</th>
+            <th>المصدر</th>
+            <th class="center">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers()" class="um-row">
+            <!-- ID -->
+            <td>
+              <span class="text-xs font-mono bg-slate-100 text-slate-500 px-2 py-1 rounded">{{ user.id }}</span>
+            </td>
+            <!-- User -->
+            <td>
+              <div class="user-cell">
+                <div class="avatar">{{ user.name.charAt(0) }}</div>
+                <div>
+                  <p class="user-name">{{ user.name }}</p>
+                  <p class="user-email">{{ user.email }}</p>
+                </div>
+              </div>
+            </td>
+            <!-- Role -->
+            <td>
+              <span class="role-badge" [ngClass]="roleClass(user.role)">{{ roleLabel(user.role) }}</span>
+            </td>
+            <!-- Status -->
+            <td>
+              <span class="status-dot" [class.active]="user.status === 'Active'" [class.inactive]="user.status === 'Inactive'">
+                <span class="dot"></span>{{ user.status === 'Active' ? 'نشط' : 'غير نشط' }}
+              </span>
+            </td>
+            <!-- Subscription status -->
+            <td>
+              <span *ngIf="user.subscription && user.subscription.status === 'Active'" class="sub-badge active">✓ مشترك</span>
+              <span *ngIf="user.subscription && user.subscription.status !== 'Active'" class="sub-badge expired">{{ subStatusLabel(user.subscription.status) }}</span>
+              <span *ngIf="!user.subscription" class="sub-badge none">— لا يوجد</span>
+            </td>
+            <!-- Plan type -->
+            <td>
+              <span *ngIf="user.subscription" class="plan-label">
+                {{ planTypeLabel(user.subscription.planType) }}
+                <br/>
+                <small class="plan-name">{{ user.subscription.planName }}</small>
+              </span>
+              <span *ngIf="!user.subscription" class="text-muted">—</span>
+            </td>
+            <!-- Joined -->
+            <td class="text-muted">{{ user.joinedAt }}</td>
+            <!-- Source -->
+            <td>
+              <span class="source-badge" [class.api]="user.source === 'api'" [class.manual]="user.source === 'manual'">
+                {{ user.source === 'api' ? '🌐 مسجل' : '✍ يدوي' }}
+              </span>
+            </td>
+            <!-- Actions -->
+            <td class="center">
+              <div class="action-btns">
+                <button class="btn-edit" (click)="openEditModal(user)">تعديل</button>
+                <button class="btn-delete" (click)="deleteUser(user)">حذف</button>
+                <button
+                  *ngIf="user.subscription && user.subscription.status === 'Active'"
+                  class="btn-cancel"
+                  (click)="cancelSubscription(user.id, 0)"
+                  title="إلغاء الاشتراك">
+                  🚫 إلغاء الاشتراك
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- Empty state -->
+          <tr *ngIf="filteredUsers().length === 0">
+            <td colspan="9" class="empty-state">لا يوجد مستخدمون يطابقون البحث</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Stats footer -->
+    <div class="um-stats" *ngIf="!isLoadingUsers()">
+      <span>إجمالي: <b>{{ users().length }}</b></span>
+      <span>طلاب: <b>{{ totalStudents() }}</b></span>
+      <span>معلمون: <b>{{ totalTeachers() }}</b></span>
+      <span>مشتركون: <b>{{ totalSubscribed() }}</b></span>
+    </div>
+  </div>
+
+  <!-- ══════════════ TAB 2: Assign Subscription ══════════════ -->
+  <div *ngIf="activeTab() === 'subscriptions'" class="um-card">
+    <div class="sub-header">
+      <div>
+        <h2 class="section-title">إضافة اشتراك للطلاب</h2>
+        <p class="section-desc">تظهر هنا جميع الطلاب المسجلين عبر المنصة والطلاب المضافين يدوياً من هذه الصفحة</p>
+      </div>
+    </div>
+
+    <div class="sub-form">
+      <!-- Student selector -->
+      <div class="form-group">
+        <label class="form-label">اختر الطالب</label>
+        <div class="select-wrap">
+          <select class="um-select full" [ngModel]="selectedStudentId()" (ngModelChange)="selectedStudentId.set($event ? +$event : null)">
+            <option [ngValue]="null">-- اختر طالب --</option>
+            <option *ngFor="let student of studentUsers()" [ngValue]="student.id">
+              {{ student.name }}
+              <ng-container *ngIf="student.email"> ({{ student.email }})</ng-container>
+              — {{ student.source === 'api' ? '🌐 مسجل' : '✍ يدوي' }}
+              <ng-container *ngIf="student.subscription?.status === 'Active'"> ✓ مشترك بالفعل</ng-container>
+            </option>
+          </select>
+        </div>
+        <!-- Preview selected student -->
+        <div *ngIf="selectedStudentId()" class="student-preview">
+          <ng-container *ngFor="let s of studentUsers()">
+            <ng-container *ngIf="s.id === selectedStudentId()">
+              <div class="preview-avatar">{{ s.name.charAt(0) }}</div>
+              <div>
+                <p class="preview-name">{{ s.name }}</p>
+                <p class="preview-email">{{ s.email }}</p>
+                <span *ngIf="s.subscription?.status === 'Active'" class="sub-badge active small">✓ لديه اشتراك نشط: {{ s.subscription?.planName }}</span>
+              </div>
+            </ng-container>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Plan selector -->
+      <div class="form-group">
+        <label class="form-label">اختر خطة الاشتراك</label>
+        <div class="plans-grid">
+          <div
+            *ngFor="let plan of plans()"
+            class="plan-card"
+            [class.selected]="selectedPlanId() === plan.planId"
+            (click)="selectedPlanId.set(plan.planId)"
+          >
+            <div class="plan-card-top">
+              <span class="plan-type-chip">{{ planTypeLabel(plan.type) }}</span>
+            </div>
+            <p class="plan-card-name">{{ plan.name }}</p>
+            <p class="plan-card-price">{{ plan.price }} <span>{{ plan.currency }}</span></p>
+            <p class="plan-card-dur">{{ plan.durationDays }} يوم</p>
+            <div class="plan-features">
+              <span *ngIf="plan.hasAi" class="feat">🤖 AI</span>
+              <span *ngIf="plan.hasLiveClass" class="feat">📹 حصص مباشرة</span>
+              <span *ngIf="plan.hasRecordings" class="feat">🎬 تسجيلات</span>
+            </div>
+          </div>
+          <div *ngIf="plans().length === 0" class="plans-empty">لا توجد خطط متاحة حالياً</div>
+        </div>
+      </div>
+
+      <button
+        class="um-btn-success"
+        (click)="assignSubscription()"
+        [disabled]="assigning() || !selectedStudentId() || !selectedPlanId()"
+      >
+        <span *ngIf="!assigning()">🎫 إضافة الاشتراك</span>
+        <span *ngIf="assigning()">⏳ جاري الإضافة...</span>
+      </button>
+    </div>
+
+    <!-- Students subscription table -->
+    <div class="sub-table-section">
+      <h3 class="section-title sm">حالة اشتراكات الطلاب</h3>
+      <div class="um-table-wrap">
+        <table class="um-table">
+          <thead>
+            <tr>
+              <th>الطالب</th>
+              <th>البريد</th>
+              <th>حالة الاشتراك</th>
+              <th>نوع الخطة</th>
+              <th>اسم الخطة</th>
+              <th>تاريخ الانتهاء</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of studentUsers()" class="um-row">
+              <td>
+                <div class="user-cell">
+                  <div class="avatar sm">{{ s.name.charAt(0) }}</div>
+                  <span class="user-name">{{ s.name }}</span>
+                </div>
+              </td>
+              <td class="text-muted">{{ s.email || '—' }}</td>
+              <td>
+                <span *ngIf="s.subscription" class="sub-badge" [ngClass]="subStatusClass(s.subscription.status)">{{ subStatusLabel(s.subscription.status) }}</span>
+                <span *ngIf="!s.subscription" class="sub-badge none">لا يوجد</span>
+              </td>
+              <td>
+                <span *ngIf="s.subscription">{{ planTypeLabel(s.subscription.planType) }}</span>
+                <span *ngIf="!s.subscription" class="text-muted">—</span>
+              </td>
+              <td>
+                <span *ngIf="s.subscription" class="plan-name">{{ s.subscription.planName }}</span>
+                <span *ngIf="!s.subscription" class="text-muted">—</span>
+              </td>
+              <td class="text-muted">
+                {{ s.subscription ? (s.subscription.endDate | date:'dd/MM/yyyy') : '—' }}
+              </td>
+            </tr>
+            <tr *ngIf="studentUsers().length === 0">
+              <td colspan="6" class="empty-state">لا يوجد طلاب مسجلون</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ Add / Edit Modal ══ -->
+<div *ngIf="showAddModal()" class="um-overlay" (click)="closeModal()">
+  <div class="um-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isEditing() ? 'تعديل المستخدم' : 'إضافة مستخدم جديد' }}</h2>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+
+    <div *ngIf="feedback()" class="um-feedback sm"
+      [class.is-success]="feedbackType() === 'success'"
+      [class.is-error]="feedbackType() === 'error'">
+      {{ feedback() }}
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">الاسم الكامل *</label>
+        <input class="um-input" [(ngModel)]="form.name" placeholder="أدخل الاسم الكامل" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">البريد الإلكتروني</label>
+        <input class="um-input" [(ngModel)]="form.email" placeholder="example@email.com" type="email" />
+      </div>
+
+      <div class="form-group" *ngIf="!isEditing()">
+        <label class="form-label">كلمة المرور <span style="color:red">*</span></label>
+        <input class="um-input" [(ngModel)]="form.password" placeholder="8 أحرف على الأقل" type="password" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">رقم الهاتف (اختياري)</label>
+        <input class="um-input" [(ngModel)]="form.phone" placeholder="مثال: 0501234567" type="tel" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">الدور</label>
+          <select class="um-select full" [(ngModel)]="form.role">
+            <option value="Student">طالب</option>
+            <option value="Teacher">معلم</option>
+            <option value="Parent">ولي أمر</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">الحالة</label>
+          <select class="um-select full" [(ngModel)]="form.status">
+            <option value="Active">نشط</option>
+            <option value="Inactive">غير نشط</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="um-btn-primary" (click)="saveUser()">
+        {{ isEditing() ? 'حفظ التعديلات' : 'إضافة المستخدم' }}
+      </button>
+      <button class="um-btn-ghost" (click)="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>

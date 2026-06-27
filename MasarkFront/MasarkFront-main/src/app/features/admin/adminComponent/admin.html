@@ -1,0 +1,104 @@
+<div class="space-y-6 font-sans text-slate-800" dir="rtl">
+  
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-black text-slate-900">نظرة عامة للمدير</h1>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center py-12">
+      <div class="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+    </div>
+  } @else if (data(); as d) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <div class="bg-[#4F8CD4] text-white rounded-[24px] p-6 shadow-sm flex items-center justify-between transition-transform hover:scale-[1.01]">
+        <div class="space-y-2">
+          <p class="text-sm font-bold opacity-90">إجمالي الطلاب</p>
+          <h3 class="text-3xl font-black">{{ d.totalStudents | number }}</h3>
+          <p class="text-xs font-medium bg-white/20 inline-block px-2 py-0.5 rounded-md">في المنصة</p>
+        </div>
+        <div class="text-4xl bg-white/15 p-4 rounded-2xl">🎓</div>
+      </div>
+
+      <div class="bg-[#34A853] text-white rounded-[24px] p-6 shadow-sm flex items-center justify-between transition-transform hover:scale-[1.01]">
+        <div class="space-y-2">
+          <p class="text-sm font-bold opacity-90">المعلمون النشطون</p>
+          <h3 class="text-3xl font-black">{{ d.activeTeachers | number }}</h3>
+          <p class="text-xs font-medium bg-white/20 inline-block px-2 py-0.5 rounded-md">جاهزون للتدريس</p>
+        </div>
+        <div class="text-4xl bg-white/15 p-4 rounded-2xl">👨‍🏫</div>
+      </div>
+
+      <div class="bg-[#FBBC05] text-white rounded-[24px] p-6 shadow-sm flex items-center justify-between transition-transform hover:scale-[1.01]">
+        <div class="space-y-2">
+          <p class="text-sm font-bold opacity-90">إجمالي الإيرادات</p>
+          <h3 class="text-3xl font-black">{{ d.totalRevenue | number }} <span class="text-lg font-bold">ر.س</span></h3>
+          <p class="text-xs font-medium bg-white/20 inline-block px-2 py-0.5 rounded-md">من الاشتراكات المكتملة</p>
+        </div>
+        <div class="text-4xl bg-white/15 p-4 rounded-2xl">💵</div>
+      </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Placeholder for actual chart -->
+      <div class="lg:col-span-2 bg-white rounded-[24px] p-6 shadow-xs border border-slate-100 flex flex-col justify-between opacity-50 pointer-events-none">
+        <div class="mb-4">
+          <h2 class="text-lg font-black text-slate-900">نمو المستخدمين (سيتم توفيره لاحقاً)</h2>
+        </div>
+        
+        <div class="relative w-full pt-4">
+          <svg class="w-full h-52 overflow-visible" viewBox="0 0 500 200" preserveAspectRatio="none">
+            <line x1="0" y1="50" x2="500" y2="50" stroke="#f1f5f9" stroke-width="1" />
+            <line x1="0" y1="100" x2="500" y2="100" stroke="#f1f5f9" stroke-width="1" />
+            <line x1="0" y1="150" x2="500" y2="150" stroke="#f1f5f9" stroke-width="1" />
+            
+            <path d="M 0 160 Q 100 140 200 100 T 400 60 T 500 30" 
+                  fill="none" 
+                  stroke="#4F8CD4" 
+                  stroke-width="4" 
+                  stroke-linecap="round"/>
+                  
+            <path d="M 0 160 Q 100 140 200 100 T 400 60 T 500 30 L 500 200 L 0 200 Z" 
+                  fill="url(#chart-gradient)" 
+                  opacity="0.15"/>
+                  
+            <defs>
+              <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4F8CD4" />
+                <stop offset="100%" stop-color="#white" />
+              </linearGradient>
+            </defs>
+
+            <circle cx="200" cy="100" r="5" fill="#4F8CD4" stroke="white" stroke-width="2" />
+            <circle cx="500" cy="30" r="5" fill="#4F8CD4" stroke="white" stroke-width="2" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-[24px] p-6 shadow-xs border border-slate-100 flex flex-col">
+        <h2 class="text-lg font-black text-slate-900 mb-5">أحدث المستخدمين انضماماً</h2>
+        
+        <div class="space-y-5 flex-1 overflow-y-auto">
+          @for (act of d.recentActivities; track act.fullName) {
+            <div class="flex items-start gap-3.5 border-b border-slate-50 pb-3">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm"
+                   [ngClass]="{'bg-blue-50': act.role === 'Student', 'bg-emerald-50': act.role === 'Teacher', 'bg-amber-50': act.role !== 'Student' && act.role !== 'Teacher'}">
+                {{ act.role === 'Student' ? '👤' : (act.role === 'Teacher' ? '👨‍🏫' : '👑') }}
+              </div>
+              <div class="flex-1 space-y-0.5">
+                <h4 class="text-xs font-black text-slate-800">{{ act.fullName }} ({{ act.role }})</h4>
+                <p class="text-[11px] text-slate-400 font-medium">{{ act.createdAt | date:'short' }}</p>
+              </div>
+            </div>
+          } @empty {
+            <p class="text-center text-slate-500 py-4 text-sm">لا يوجد نشاط حديث</p>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>

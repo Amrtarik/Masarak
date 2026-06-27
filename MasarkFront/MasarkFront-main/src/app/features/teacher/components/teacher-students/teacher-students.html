@@ -1,0 +1,108 @@
+<div class="space-y-6 font-sans text-slate-800" dir="rtl">
+
+  <div class="flex items-center justify-between">
+    <div class="flex flex-col gap-1">
+      <h1 class="text-2xl font-black text-slate-900">قائمة الطلاب</h1>
+      <p class="text-xs font-bold text-slate-400">متابعة أداء حضور وتقييم طلابك في المواد الدراسية</p>
+    </div>
+    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-400">
+      <span class="hover:text-slate-600 cursor-pointer">الرئيسية</span>
+      <span>/</span>
+      <span class="text-[#4F8CD4]">الطلاب</span>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-[24px] p-6 shadow-xs border border-slate-100 space-y-6">
+    <div class="flex flex-col lg:flex-row justify-between items-center gap-4 border-b border-slate-50 pb-4">
+      
+      <div class="relative w-full lg:max-w-md">
+        <span class="absolute right-3.5 top-3 text-slate-400 text-sm">🔍</span>
+        <input 
+          type="text" 
+          placeholder="بحث عن طالب..." 
+          class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl py-2.5 pr-10 pl-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400"
+        >
+      </div>
+
+      <div class="flex items-center gap-4 w-full lg:w-auto justify-end">
+        <div class="relative w-full sm:w-44">
+          <label class="absolute -top-2 right-3 bg-white px-1 text-[10px] font-bold text-slate-400">الفصل الدراسي</label>
+          <select class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl py-2.5 px-3 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option>الصف الأول الثانوي (أ)</option>
+            <option>الصف الأول الثانوي (ب)</option>
+            <option>الصف الثاني الثانوي (أ)</option>
+          </select>
+          <span class="absolute left-3 top-3.5 text-[10px] text-slate-400 pointer-events-none">▼</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-right border-collapse text-sm">
+        <thead>
+          <tr class="text-slate-400 font-bold border-b border-slate-100 bg-slate-50/50">
+            <th class="py-3 pr-4 font-black">اسم الطالب</th>
+            <th class="py-3 font-black">الفصل الدراسي</th>
+            <th class="py-3 font-black">نسبة الحضور</th>
+            <th class="py-3 font-black">الواجبات المسلمة</th>
+            <th class="py-3 font-black">التقييم العام</th>
+            <th class="py-3 pl-4 text-center font-black">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+          
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="py-4 pr-4 font-bold text-slate-900 flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs">👨‍🎓</div>
+              <span>أحمد محمد العلي</span>
+            </td>
+            <td class="py-4 text-xs font-bold text-slate-500">الصف الأول الثانوي (أ)</td>
+            <td class="py-4 text-xs font-bold text-emerald-600">98%</td>
+            <td class="py-4 text-xs text-slate-600">12 / 12</td>
+            <td class="py-4 text-xs">
+              <span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-bold">ممتاز</span>
+            </td>
+            <td class="py-4 pl-4 text-center">
+              <button class="bg-blue-50 hover:bg-blue-100 text-[#4F8CD4] text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">عرض التقارير</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="py-4 pr-4 font-bold text-slate-900 flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs">👨‍🎓</div>
+              <span>خالد عبد الله الشمري</span>
+            </td>
+            <td class="py-4 text-xs font-bold text-slate-500">الصف الأول الثانوي (أ)</td>
+            <td class="py-4 text-xs font-bold text-amber-500">92%</td>
+            <td class="py-4 text-xs text-slate-600">10 / 12</td>
+            <td class="py-4 text-xs">
+              <span class="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-md font-bold">جيد جداً</span>
+            </td>
+            <td class="py-4 pl-4 text-center">
+              <button class="bg-blue-50 hover:bg-blue-100 text-[#4F8CD4] text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">عرض التقارير</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="py-4 pr-4 font-bold text-slate-900 flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs">👩‍🎓</div>
+              <span>سارة يوسف أحمد</span>
+            </td>
+            <td class="py-4 text-xs font-bold text-slate-500">الصف الأول الثانوي (أ)</td>
+            <td class="py-4 text-xs font-bold text-rose-500">84%</td>
+            <td class="py-4 text-xs text-slate-600">8 / 12</td>
+            <td class="py-4 text-xs">
+              <span class="bg-rose-50 text-rose-700 px-2.5 py-1 rounded-md font-bold">مقبول</span>
+            </td>
+            <td class="py-4 pl-4 text-center">
+              <button class="bg-blue-50 hover:bg-blue-100 text-[#4F8CD4] text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">عرض التقارير</button>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
