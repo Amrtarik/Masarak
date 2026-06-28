@@ -175,9 +175,6 @@ namespace Masarak.API.Extensions
             services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
             services.AddScoped<IEmailService, EmailService>();
 
-            // Admin Services
-            services.AddScoped<IAdminUserService, AdminUserService>();
-
             // Subscription Services
             services.Configure<StripeSettings>(configuration.GetSection("StripeSettings"));
             services.AddScoped<ISubscriptionRepository, Masarak.Infrastructure.Persistence.Repositories.SubscriptionRepository>();

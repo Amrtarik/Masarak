@@ -18,50 +18,12 @@ namespace Masarak.API.Controllers
             Ok(new { message = "Admin dashboard — restricted to Admins only.", user = GetUserInfo() });
 
         [HttpGet("users")]
-        [ProducesResponseType(typeof(Masarak.Application.DTOs.PagedResult<Masarak.Application.DTOs.AdminUserDto>), 200)]
-        public async Task<IActionResult> GetAllUsers(
-            [FromServices] IAdminUserService adminUserService,
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 50,
-            [FromQuery] string? role = null)
-        {
-            var result = await adminUserService.GetUsersAsync(page, pageSize, role);
-            return Ok(result);
-        }
-
-        [HttpPost("users")]
-        [ProducesResponseType(typeof(Masarak.Application.DTOs.AdminUserDto), 200)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> CreateUser(
-            [FromServices] IAdminUserService adminUserService,
-            [FromBody] Masarak.Application.DTOs.AdminCreateUserRequest request)
-        {
-            try
-            {
-                var result = await adminUserService.CreateUserAsync(request);
-                return Ok(result);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+        public IActionResult GetAllUsers() =>
+            Ok(new { message = "User list — Admin only.", user = GetUserInfo() });
 
         [HttpDelete("users/{id}")]
-        public async Task<IActionResult> DeleteUser(
-            [FromServices] IAdminUserService adminUserService,
-            int id)
-        {
-            try
-            {
-                await adminUserService.DeleteUserAsync(id);
-                return Ok(new { message = $"User {id} deleted by Admin." });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-        }
+        public IActionResult DeleteUser(int id) =>
+            Ok(new { message = $"User {id} deleted by Admin.", user = GetUserInfo() });
 
         [HttpGet("subscriptions")]
         [ProducesResponseType(typeof(Masarak.Application.DTOs.PagedResult<Masarak.Application.DTOs.SubscriptionDto>), 200)]

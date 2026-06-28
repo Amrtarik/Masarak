@@ -24,18 +24,6 @@ namespace Masarak.API.Controllers
             _academicService = academicService;
         }
 
-        // ── Teachers ──────────────────────────────────────────────────────────
-
-        [HttpGet("teachers")]
-        [ProducesResponseType(typeof(IEnumerable<TeacherDto>), 200)]
-        public async Task<IActionResult> GetTeachers(
-            [FromServices] IAdminUserService adminUserService, 
-            CancellationToken ct)
-        {
-            var teachers = await adminUserService.GetAllTeachersAsync(ct);
-            return Ok(teachers);
-        }
-
         // ── Grades ──────────────────────────────────────────────────────────
 
         [HttpGet("grades")]

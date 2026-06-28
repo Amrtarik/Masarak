@@ -106,15 +106,7 @@ using (var scope = app.Services.CreateScope())
     await DatabaseSeeder.SeedAdminUserAsync(db, pwd);
     await DatabaseSeeder.SeedPlansAsync(db);   // Phase 1 plans
     await DatabaseSeeder.SeedChatRoomsAsync(db); // Phase 4 chat rooms
-    if (app.Environment.IsDevelopment())
-    {
-        await DatabaseSeeder.SeedTestTeachersAsync(db, pwd);
-        await DatabaseSeeder.SeedTestStudentsAsync(db, pwd);
-        await DatabaseSeeder.SeedSubjectsAsync(db);
-        await DatabaseSeeder.SeedClassesAsync(db);
-        await DatabaseSeeder.SeedTeachingAssignmentsAsync(db);
-        await DatabaseSeeder.SeedStudentEnrollmentsAsync(db);
-    }
+    await DatabaseSeeder.SeedAiPromptTemplatesAsync(db); // Phase 5 AI prompt templates
 }
 
 // ── Middleware Pipeline ───────────────────────────────────────────────────────
