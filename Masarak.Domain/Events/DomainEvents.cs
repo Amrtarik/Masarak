@@ -10,6 +10,19 @@ namespace Masarak.Domain.Events
     /// <summary>Raised when a parent is successfully linked to a student.</summary>
     public record ParentStudentLinkedEvent(int ParentUserId, int StudentUserId);
 
+    /// <summary>Raised when a subscription is about to expire (e.g. 7 days before).</summary>
+    public record SubscriptionExpiringEvent(int UserId, int SubscriptionId, int DaysRemaining);
+
+    /// <summary>Raised when a payment fails for a subscription.</summary>
+    public record PaymentFailedEvent(int UserId, int SubscriptionId, string Reason);
+
+    // ── Phase 2 Events ──────────────────────────────────────────────────
+    /// <summary>Raised when a session is scheduled for a class.</summary>
+    public record SessionScheduledEvent(int SessionId, int ClassId, string Title, DateTime ScheduledAt);
+
+    /// <summary>Raised when a student is enrolled in a class.</summary>
+    public record StudentEnrolledEvent(int StudentUserId, int ClassId, int TeacherUserId);
+
     // ── Phase 3 Events ──────────────────────────────────────────────────
     /// <summary>Raised when a student submits an exam (or exam auto-expires).</summary>
     public record ExamSubmittedEvent(int StudentExamId, int StudentUserId, int ExamId);

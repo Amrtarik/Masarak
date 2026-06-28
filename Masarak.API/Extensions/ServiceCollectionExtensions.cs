@@ -239,6 +239,12 @@ namespace Masarak.API.Extensions
 
             services.AddScoped<IAiAnalyticsService, Masarak.Infrastructure.Services.AI.AiAnalyticsService>();
 
+            // ── Phase 6 Notifications & Admin ─────────────────────────────────
+            services.AddScoped<INotificationRepository, Masarak.Infrastructure.Persistence.Repositories.NotificationRepository>();
+            services.AddScoped<IAdminUserRepository, Masarak.Infrastructure.Persistence.Repositories.AdminUserRepository>();
+            services.AddScoped<INotificationService, Masarak.Infrastructure.Services.NotificationService>();
+            services.AddScoped<INotificationPushService, Masarak.API.Services.SignalRNotificationPushService>();
+
             return services;
         }
     }

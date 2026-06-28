@@ -674,7 +674,7 @@ namespace Masarak.Infrastructure.Persistence
             });
 
             // ═══════════════════════════════════════════════════════════════════
-            // 22. NOTIFICATIONS
+            // 22. NOTIFICATIONS  (Phase 6: refactored with Type enum, Channel, ActionUrl, indexes)
             // ═══════════════════════════════════════════════════════════════════
             modelBuilder.Entity<Notification>(e =>
             {
@@ -683,10 +683,18 @@ namespace Masarak.Infrastructure.Persistence
                 e.Property(x => x.NotificationId).ValueGeneratedOnAdd();
                 e.Property(x => x.Title).HasMaxLength(255).IsRequired();
                 e.Property(x => x.Body).HasColumnType("nvarchar(max)").IsRequired();
-                e.Property(x => x.NotifType).HasMaxLength(50).IsRequired();
-                e.Property(x => x.ReferenceType).HasMaxLength(50);
+                e.Property(x => x.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
+                e.Property(x => x.Channel).HasConversion<string>().HasMaxLength(10).IsRequired();
+                e.Property(x => x.ActionUrl).HasMaxLength(500);
                 e.Property(x => x.IsRead).HasDefaultValue(false);
-                e.Property(x => x.SentAt).HasDefaultValueSql("GETDATE()");
+                e.Property(x => x.CreatedAt).HasDefaultValueSql("GETDATE()");
+
+                // Phase 6: Optimized indexes for inbox and unread count queries
+                e.HasIndex(x => new { x.UserId, x.IsRead, x.CreatedAt })
+                 .HasDatabaseName("IX_notifications_UserId_IsRead_CreatedAt");
+                e.HasIndex(x => new { x.UserId, x.IsRead })
+                 .HasFilter("[IsRead] = 0")
+                 .HasDatabaseName("IX_notifications_UserId_Unread");
 
                 e.HasOne(x => x.User)
                  .WithMany(u => u.Notifications)

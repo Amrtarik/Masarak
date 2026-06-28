@@ -43,9 +43,20 @@ if (!string.IsNullOrEmpty(redisConn))
 // ── MassTransit ──
 builder.Services.AddMassTransit(x =>
 {
+    // Phase 3 consumers
     x.AddConsumer<Masarak.Infrastructure.Messaging.ExamGradedConsumer>();
     x.AddConsumer<Masarak.Infrastructure.Messaging.AssignmentGradedConsumer>();
     x.AddConsumer<Masarak.Infrastructure.Messaging.PerformanceRecalculatedAiConsumer>(); // Phase 5
+
+    // Phase 6 notification consumers
+    x.AddConsumer<Masarak.Infrastructure.Messaging.SubscriptionActivatedNotificationConsumer>();
+    x.AddConsumer<Masarak.Infrastructure.Messaging.SubscriptionExpiringNotificationConsumer>();
+    x.AddConsumer<Masarak.Infrastructure.Messaging.ExamFullyGradedNotificationConsumer>();
+    x.AddConsumer<Masarak.Infrastructure.Messaging.AssignmentGradedNotificationConsumer>();
+    x.AddConsumer<Masarak.Infrastructure.Messaging.SessionScheduledNotificationConsumer>();
+    x.AddConsumer<Masarak.Infrastructure.Messaging.AlertCreatedNotificationConsumer>();
+    x.AddConsumer<Masarak.Infrastructure.Messaging.ParentReportReadyNotificationConsumer>();
+    x.AddConsumer<Masarak.Infrastructure.Messaging.PaymentFailedNotificationConsumer>();
 
     x.UsingInMemory((context, cfg) =>
     {
@@ -128,6 +139,7 @@ app.UseAuthorization();
 app.UseMiddleware<Masarak.API.Extensions.SubscriptionAccessMiddleware>();
 app.MapControllers();
 app.MapHub<Masarak.API.Hubs.ChatHub>("/hubs/chat"); // Phase 4: SignalR ChatHub
+app.MapHub<Masarak.API.Hubs.NotificationHub>("/hubs/notifications"); // Phase 6: SignalR NotificationHub
 app.Run();
 
 public partial class Program { }

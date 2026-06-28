@@ -258,3 +258,34 @@ The system employs a robust Role-Based Access Control (RBAC) mechanism using JWT
 - Admin can view grade-level performance heatmaps with color-coded subject scores
 - Admin can edit AI prompt templates without redeployment
 
+### ✅ Phase 6: Notifications & Admin API (Completed)
+
+#### Domain Layer
+- **Entities:** Refactored `Notification` (added Factory method, NotificationType enum, Channel enum, ActionUrl).
+- **Enums:** `NotificationType`, `NotificationChannel`.
+- **Events:** Added `SubscriptionExpiringEvent`, `PaymentFailedEvent`, `SessionScheduledEvent`, `StudentEnrolledEvent`.
+
+#### Application Layer
+- **Repository Interfaces:** `INotificationRepository`, `IAdminUserRepository`.
+- **Service Interfaces:** `INotificationPushService`, `INotificationService`.
+- **DTOs:** `NotificationDto`, `AdminUserDto`, `AdminUserDetailDto`, `SystemHealthDto`.
+
+#### Infrastructure Layer
+- **Repositories:** `NotificationRepository`, `AdminUserRepository`.
+- **Services:** `NotificationService` (orchestrates creation and SignalR push).
+- **Messaging (MassTransit):** 8 event consumers implemented to cover notifications across all phases (SubscriptionActivated, SubscriptionExpiring, ExamFullyGraded, AssignmentGraded, SessionScheduled, AlertCreated, ParentReportReady, PaymentFailed).
+- **EF Core:** Added optimized composite indexes to `Context.cs` for notifications. Migration generated.
+
+#### API Layer
+- **SignalR Hub:** `NotificationHub` at `/hubs/notifications`.
+- **Controllers:** `NotificationsController`, `AdminUsersController`, `AdminContentModerationController`, `AdminSystemController`.
+- **Services:** `SignalRNotificationPushService` (moved to API layer to prevent circular dependency).
+- **DI/Middleware:** All services registered in `ServiceCollectionExtensions.cs`.
+
+#### Angular Platform Shell
+- *Pending frontend initialization.*
+
+#### Validation
+- ✅ Build succeeded with 0 errors.
+- ✅ All Phase 6 backend entities, services, consumers, and controllers implemented.
+- ✅ Migration generated (pending DB update due to SQL Server connection).
