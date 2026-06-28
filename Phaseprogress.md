@@ -159,6 +159,102 @@ The system employs a robust Role-Based Access Control (RBAC) mechanism using JWT
 - Community chat enables real-time communication per grade and among teachers
 
 #### Remaining / Next Steps
-- Phase 5: AI Recommendations & Analytics (depends on Phases 1-4)
 - Phase 6: Notifications, Admin CRUD & Angular Shell
-- EF Core migration needs to be generated and applied for the Phase 4 schema changes
+- ✅ EF Core migration generated and applied for the Phase 4 schema changes
+- ✅ EF Core migration generated and applied for the Phase 5 schema changes
+
+### ✅ Phase 5: AI Recommendations, Smart Reports & Analytics (Completed 2026-06-27)
+
+#### Domain Layer
+- **Entities:** Refactored `AiRecommendation` (new PK, Type enum, Payload JSON, ProviderUsed, token tracking, TTL/ExpiresAt, IsActive); Created `PerformanceAlert`, `AiPromptTemplate`, `AnalyticsDashboardSnapshot`
+- **Enums:** `RecommendationType`, `AlertType`, `SnapshotScope`, `AiProvider`
+- **Value Objects:** `WeaknessAnalysisResult`, `WeakTopic`, `ContentRecommendationResult`, `ParentReportData`, `SubjectSummary`
+- **Events:** `AlertCreatedEvent`, `ParentReportReadyEvent`
+
+#### Application Layer
+- **Repository Interfaces:** `IAiRecommendationRepository`, `IPerformanceAlertRepository`, `IAiPromptTemplateRepository`, `IAnalyticsSnapshotRepository`
+- **Service Interfaces:** `IAiProvider`, `IAiProviderFactory`, `IAiAnalyticsService`
+- **DTOs:** `WeaknessAnalysisDto`, `WeakTopicDto`, `ContentRecommendationDto`, `ParentReportDto`, `SubjectSummaryDto`, `TeachingSuggestionDto`, `LearningInsightsDashboardDto`, `PerformanceTrendDto`, `ScorePointDto`, `ClassAnalyticsDashboardDto`, `ScoreDistributionBucketDto`, `AnalyticsStudentScoreDto`, `PlatformAnalyticsDto`, `GradeEnrollmentDto`, `GradeHeatmapDto`, `ClassHeatmapRowDto`, `SubjectScoreCellDto`, `PerformanceAlertDto`, `AiPromptTemplateDto`, `UpdatePromptTemplateRequest`, `AiPromptRequest`, `AiCompletionResult`, `GenerateParentReportRequest`
+
+#### Infrastructure Layer
+- **Repositories:** `AiRecommendationRepository`, `PerformanceAlertRepository`, `AiPromptTemplateRepository`, `AnalyticsSnapshotRepository`
+- **AI Providers:** `OpenAiProvider` (GPT-4o), `ClaudeProvider` (Claude Sonnet 4), `GeminiProvider` (Gemini 1.5 Flash)
+- **AI Factory:** `AiProviderFactory` with configurable primary + fallback chain (OpenAI → Claude → Gemini)
+- **AI Service:** `AiAnalyticsService` — orchestrates all dashboards, AI generation, caching, and rule-based alerts
+- **MassTransit Consumer:** `PerformanceRecalculatedAiConsumer` — invalidates cache, triggers weakness analysis + alert evaluation
+- **Seeder:** `SeedAiPromptTemplatesAsync` — seeds 3 prompt templates (weakness_analysis, parent_report, teaching_suggestion)
+- **EF Core:** Updated `Context.cs` with 3 new DbSets, 4 new/updated table configurations, composite indexes
+
+#### API Layer
+- **Controllers:** `StudentInsightsController`, `ParentReportsController`, `TeacherAnalyticsController`, `AdminAnalyticsController`
+- **Program.cs:** Added Phase 5 MassTransit consumer, prompt template seeding
+- **DI:** Registered all Phase 5 repositories, AI providers (HttpClient-based), factory, and analytics service
+
+#### API Endpoints Implemented
+| Method | Route | Purpose |
+|--------|-------|---------|
+| GET | `/api/student/insights` | Student learning insights dashboard |
+| GET | `/api/student/recommendations/{subjectId}` | AI-recommended content per subject |
+| GET | `/api/parent/reports/{studentId}/{month}` | Get cached parent report |
+| POST | `/api/parent/reports/{studentId}/generate` | Generate fresh parent report (24h cache) |
+| GET | `/api/parent/children/{studentId}/alerts` | Get student performance alerts |
+| GET | `/api/teacher/analytics/{classId}/{subjectId}` | Class analytics dashboard |
+| POST | `/api/teacher/students/{studentId}/suggestions/{subjectId}` | AI teaching suggestion |
+| GET | `/api/admin/analytics/platform` | Platform-wide KPI analytics |
+| GET | `/api/admin/analytics/grades/{gradeId}/heatmap` | Grade performance heatmap |
+| GET | `/api/admin/ai/prompt-templates` | List AI prompt templates |
+| PUT | `/api/admin/ai/prompt-templates/{key}` | Update prompt template |
+
+#### Files Modified/Created
+**Domain:**
+- `Masarak.Domain/Entities/AiRecommendation.cs` (refactored)
+- `Masarak.Domain/Entities/PerformanceAlert.cs` (new)
+- `Masarak.Domain/Entities/AiPromptTemplate.cs` (new)
+- `Masarak.Domain/Entities/AnalyticsDashboardSnapshot.cs` (new)
+- `Masarak.Domain/Entities/Student.cs` (modified — removed stale AiRecommendations nav)
+- `Masarak.Domain/Enums/Phase5Enums.cs` (new)
+- `Masarak.Domain/ValueObjects/Phase5ValueObjects.cs` (new)
+- `Masarak.Domain/Events/DomainEvents.cs` (modified — added Phase 5 events)
+
+**Application:**
+- `Masarak.Application/Interfaces/IAiProvider.cs` (new)
+- `Masarak.Application/Interfaces/IPhase5Repositories.cs` (new)
+- `Masarak.Application/Interfaces/IAiAnalyticsService.cs` (new)
+- `Masarak.Application/DTOs/Phase5DTOs.cs` (new)
+
+**Infrastructure:**
+- `Masarak.Infrastructure/Persistence/Context.cs` (modified — 3 new DbSets, 4 entity configs)
+- `Masarak.Infrastructure/Persistence/Repositories/Phase5Repositories.cs` (new)
+- `Masarak.Infrastructure/Persistence/Seeders/DatabaseSeeder.cs` (modified — added SeedAiPromptTemplatesAsync)
+- `Masarak.Infrastructure/Services/AI/AiProviders.cs` (new)
+- `Masarak.Infrastructure/Services/AI/AiAnalyticsService.cs` (new)
+- `Masarak.Infrastructure/Messaging/Phase5Consumers.cs` (new)
+
+**API:**
+- `Masarak.API/Program.cs` (modified — Phase 5 consumer + seeder)
+- `Masarak.API/Extensions/ServiceCollectionExtensions.cs` (modified — Phase 5 DI)
+- `Masarak.API/Controllers/StudentInsightsController.cs` (new)
+- `Masarak.API/Controllers/ParentReportsController.cs` (new)
+- `Masarak.API/Controllers/TeacherAnalyticsController.cs` (new)
+- `Masarak.API/Controllers/AdminAnalyticsController.cs` (new)
+
+#### Validation
+- ✅ Build succeeded with 0 errors
+- ✅ All Phase 5 entities, services, and controllers implemented
+- ✅ All 11 API endpoints from Phase 5 spec implemented
+- ✅ AI provider abstraction with configurable fallback chain
+- ✅ Rule-based alerts at 75% attendance and 50% exam score thresholds
+- ✅ Redis caching for AI results (24h parent reports, weakness analysis invalidation)
+- ✅ Prompt template seeder with 3 default templates
+- ✅ MassTransit consumer bridges performance events to AI pipeline
+
+#### Business Impact
+- Students can view AI-powered learning insights with weakness analyses and content recommendations
+- Parents can generate and view monthly smart reports with AI narratives for linked children
+- Parents receive automatic alerts when children's attendance or exam scores drop below thresholds
+- Teachers can view class analytics dashboards with score distributions and top/bottom students
+- Teachers can request AI-generated teaching suggestions for individual students
+- Admin has platform-wide analytics (students, teachers, revenue, session completion rate)
+- Admin can view grade-level performance heatmaps with color-coded subject scores
+- Admin can edit AI prompt templates without redeployment
+

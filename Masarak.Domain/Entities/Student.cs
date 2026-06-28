@@ -28,6 +28,5 @@ namespace Masarak.Domain.Entities
         public virtual ICollection<Submission>         Submissions         { get; set; } = new List<Submission>();
         public virtual ICollection<StudentExam>        StudentExams        { get; set; } = new List<StudentExam>();
         public virtual ICollection<StudentPerformance> StudentPerformances { get; set; } = new List<StudentPerformance>();
-        public virtual ICollection<AiRecommendation>   AiRecommendations   { get; set; } = new List<AiRecommendation>();
     }
 }

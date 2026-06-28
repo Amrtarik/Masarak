@@ -225,6 +225,23 @@ namespace Masarak.API.Extensions
             services.AddScoped<IContentService, ContentService>();
             services.AddScoped<IChatService, ChatService>();
 
+            // ── Phase 5 AI Recommendations & Analytics ────────────────────────
+            services.AddScoped<IAiRecommendationRepository, Masarak.Infrastructure.Persistence.Repositories.AiRecommendationRepository>();
+            services.AddScoped<IPerformanceAlertRepository, Masarak.Infrastructure.Persistence.Repositories.PerformanceAlertRepository>();
+            services.AddScoped<IAiPromptTemplateRepository, Masarak.Infrastructure.Persistence.Repositories.AiPromptTemplateRepository>();
+            services.AddScoped<IAnalyticsSnapshotRepository, Masarak.Infrastructure.Persistence.Repositories.AnalyticsSnapshotRepository>();
+
+            // AI Providers (HttpClient-based)
+            services.AddHttpClient("OpenAI");
+            services.AddHttpClient("Claude");
+            services.AddHttpClient("Gemini");
+            services.AddSingleton<Masarak.Infrastructure.Services.AI.OpenAiProvider>();
+            services.AddSingleton<Masarak.Infrastructure.Services.AI.ClaudeProvider>();
+            services.AddSingleton<Masarak.Infrastructure.Services.AI.GeminiProvider>();
+            services.AddSingleton<IAiProviderFactory, Masarak.Infrastructure.Services.AI.AiProviderFactory>();
+
+            services.AddScoped<IAiAnalyticsService, Masarak.Infrastructure.Services.AI.AiAnalyticsService>();
+
             return services;
         }
     }

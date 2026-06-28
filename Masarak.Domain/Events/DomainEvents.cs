@@ -22,5 +22,12 @@ namespace Masarak.Domain.Events
 
     /// <summary>Raised after performance metrics are recalculated.</summary>
     public record PerformanceRecalculatedEvent(int StudentUserId, int SubjectId, int ClassId);
+
+    // ── Phase 5 Events ──────────────────────────────────────────────────
+    /// <summary>Raised when a performance alert is created for a student (consumed by Phase 6 Notifications).</summary>
+    public record AlertCreatedEvent(int StudentUserId, int? SubjectId, Enums.AlertType AlertType, string Message);
+
+    /// <summary>Raised when a parent report has been generated and is ready to view.</summary>
+    public record ParentReportReadyEvent(int StudentUserId, string ReportMonth);
 }
 

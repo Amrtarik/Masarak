@@ -45,6 +45,7 @@ builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<Masarak.Infrastructure.Messaging.ExamGradedConsumer>();
     x.AddConsumer<Masarak.Infrastructure.Messaging.AssignmentGradedConsumer>();
+    x.AddConsumer<Masarak.Infrastructure.Messaging.PerformanceRecalculatedAiConsumer>(); // Phase 5
 
     x.UsingInMemory((context, cfg) =>
     {

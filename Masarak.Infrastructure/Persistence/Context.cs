@@ -55,6 +55,11 @@ namespace Masarak.Infrastructure.Persistence
         public DbSet<ChatRoom>    ChatRooms    { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
 
+        // ── Phase 5 DbSets ← NEW ──────────────────────────────────────────────
+        public DbSet<PerformanceAlert>           PerformanceAlerts  { get; set; }
+        public DbSet<AiPromptTemplate>           AiPromptTemplates  { get; set; }
+        public DbSet<AnalyticsDashboardSnapshot> AnalyticsSnapshots { get; set; }
+
         // ── Constructors ──────────────────────────────────────────────────────
         /// <summary>For ASP.NET Core dependency injection.</summary>
         public Context(DbContextOptions<Context> options) : base(options) { }
@@ -582,25 +587,90 @@ namespace Masarak.Infrastructure.Persistence
             });
 
             // ═══════════════════════════════════════════════════════════════════
-            // 21. AI_RECOMMENDATIONS
+            // 21. AI_RECOMMENDATIONS  (Phase 5 refactored)
             // ═══════════════════════════════════════════════════════════════════
             modelBuilder.Entity<AiRecommendation>(e =>
             {
                 e.ToTable("ai_recommendations");
-                e.HasKey(x => x.RecommendationId);
-                e.Property(x => x.RecommendationId).ValueGeneratedOnAdd();
+                e.HasKey(x => x.AiRecommendationId);
+                e.Property(x => x.AiRecommendationId).ValueGeneratedOnAdd();
+                e.Property(x => x.Type).HasConversion<string>().HasMaxLength(30);
+                e.Property(x => x.Payload).HasColumnType("nvarchar(max)");
+                e.Property(x => x.ProviderUsed).HasMaxLength(50);
                 e.Property(x => x.GeneratedAt).HasDefaultValueSql("GETDATE()");
-                e.Property(x => x.RecType).HasMaxLength(50).IsRequired();
-                e.Property(x => x.ReferenceType).HasMaxLength(50);
-                e.Property(x => x.Reason).HasColumnType("nvarchar(max)").IsRequired();
-                e.Property(x => x.ActionUrl).HasMaxLength(500);
-                e.Property(x => x.IsRead).HasDefaultValue(false);
-                e.Property(x => x.IsDismissed).HasDefaultValue(false);
+                e.Property(x => x.ExpiresAt).IsRequired();
+                e.Property(x => x.IsActive).HasDefaultValue(true);
+                e.HasIndex(x => new { x.StudentUserId, x.SubjectId, x.Type, x.IsActive });
 
                 e.HasOne(x => x.Student)
-                 .WithMany(s => s.AiRecommendations)
-                 .HasForeignKey(x => x.StudentId)
+                 .WithMany()
+                 .HasForeignKey(x => x.StudentUserId)
                  .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasOne(x => x.Subject)
+                 .WithMany()
+                 .HasForeignKey(x => x.SubjectId)
+                 .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ═══════════════════════════════════════════════════════════════════
+            // 30. PERFORMANCE_ALERTS  ← Phase 5 NEW
+            // ═══════════════════════════════════════════════════════════════════
+            modelBuilder.Entity<PerformanceAlert>(e =>
+            {
+                e.ToTable("performance_alerts");
+                e.HasKey(x => x.PerformanceAlertId);
+                e.Property(x => x.PerformanceAlertId).ValueGeneratedOnAdd();
+                e.Property(x => x.AlertType).HasConversion<string>().HasMaxLength(30);
+                e.Property(x => x.Message).HasMaxLength(500).IsRequired();
+                e.Property(x => x.TriggerValue).HasColumnType("decimal(5,2)");
+                e.Property(x => x.Threshold).HasColumnType("decimal(5,2)");
+                e.Property(x => x.IsResolved).HasDefaultValue(false);
+                e.Property(x => x.CreatedAt).HasDefaultValueSql("GETDATE()");
+                e.HasIndex(x => new { x.StudentUserId, x.SubjectId, x.AlertType, x.IsResolved });
+
+                e.HasOne(x => x.Student)
+                 .WithMany()
+                 .HasForeignKey(x => x.StudentUserId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasOne(x => x.Subject)
+                 .WithMany()
+                 .HasForeignKey(x => x.SubjectId)
+                 .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ═══════════════════════════════════════════════════════════════════
+            // 31. AI_PROMPT_TEMPLATES  ← Phase 5 NEW
+            // ═══════════════════════════════════════════════════════════════════
+            modelBuilder.Entity<AiPromptTemplate>(e =>
+            {
+                e.ToTable("ai_prompt_templates");
+                e.HasKey(x => x.AiPromptTemplateId);
+                e.Property(x => x.AiPromptTemplateId).ValueGeneratedOnAdd();
+                e.Property(x => x.Key).HasMaxLength(50).IsRequired();
+                e.HasIndex(x => x.Key).IsUnique();
+                e.Property(x => x.SystemPrompt).HasColumnType("nvarchar(max)").IsRequired();
+                e.Property(x => x.UserPromptTemplate).HasColumnType("nvarchar(max)").IsRequired();
+                e.Property(x => x.MaxTokens).IsRequired();
+                e.Property(x => x.Temperature).HasColumnType("decimal(3,2)");
+                e.Property(x => x.UpdatedAt).HasDefaultValueSql("GETDATE()");
+                e.Property(x => x.UpdatedBy).HasMaxLength(100).IsRequired();
+            });
+
+            // ═══════════════════════════════════════════════════════════════════
+            // 32. ANALYTICS_SNAPSHOTS  ← Phase 5 NEW
+            // ═══════════════════════════════════════════════════════════════════
+            modelBuilder.Entity<AnalyticsDashboardSnapshot>(e =>
+            {
+                e.ToTable("analytics_snapshots");
+                e.HasKey(x => x.SnapshotId);
+                e.Property(x => x.SnapshotId).ValueGeneratedOnAdd();
+                e.Property(x => x.Scope).HasConversion<string>().HasMaxLength(20);
+                e.Property(x => x.DataJson).HasColumnType("nvarchar(max)");
+                e.Property(x => x.GeneratedAt).HasDefaultValueSql("GETDATE()");
+                e.Property(x => x.ExpiresAt).IsRequired();
+                e.HasIndex(x => new { x.Scope, x.ScopeEntityId }).IsUnique();
             });
 
             // ═══════════════════════════════════════════════════════════════════
