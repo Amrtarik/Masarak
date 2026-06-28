@@ -1,0 +1,71 @@
+<section class="space-y-6 text-slate-900" dir="rtl">
+  <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div class="text-right">
+      <p class="text-sm font-semibold text-sky-700">Attendance</p>
+      <h1 class="mt-1 text-2xl font-bold text-slate-950 sm:text-3xl">Attendance History</h1>
+    </div>
+    <button
+      type="button"
+      class="inline-flex min-h-11 items-center justify-center rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      [disabled]="isLoading()"
+      (click)="loadAttendance()"
+    >
+      Refresh
+    </button>
+  </header>
+
+  @if (isLoading()) {
+    <div class="h-64 animate-pulse rounded-lg border border-slate-200 bg-white p-5 shadow-sm"></div>
+  } @else if (errorMessage()) {
+    <article class="rounded-lg border border-rose-200 bg-white p-6 text-right shadow-sm">
+      <p class="text-sm font-semibold text-rose-700">Attendance could not be loaded</p>
+      <p class="mt-2 text-sm text-slate-600">{{ errorMessage() }}</p>
+      <button type="button" class="mt-5 rounded-lg bg-rose-600 px-4 py-3 text-sm font-semibold text-white" (click)="loadAttendance()">
+        Try again
+      </button>
+    </article>
+  } @else {
+    <app-student-attendance-summary [summary]="summary()" />
+
+    <article class="rounded-lg border border-slate-200 bg-white p-5 text-right shadow-sm">
+      <h2 class="text-lg font-bold text-slate-950">Subjects</h2>
+
+      @if (subjects().length > 0) {
+        <div class="mt-5 overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+              <tr>
+                <th scope="col" class="whitespace-nowrap px-4 py-3 text-right font-semibold text-slate-600">Subject</th>
+                <th scope="col" class="whitespace-nowrap px-4 py-3 text-right font-semibold text-slate-600">Present</th>
+                <th scope="col" class="whitespace-nowrap px-4 py-3 text-right font-semibold text-slate-600">Absent</th>
+                <th scope="col" class="whitespace-nowrap px-4 py-3 text-right font-semibold text-slate-600">Excused</th>
+                <th scope="col" class="whitespace-nowrap px-4 py-3 text-right font-semibold text-slate-600">Total</th>
+                <th scope="col" class="whitespace-nowrap px-4 py-3 text-right font-semibold text-slate-600">Attendance</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              @for (subject of subjects(); track subject.subjectId) {
+                <tr class="transition hover:bg-slate-50">
+                  <td class="whitespace-nowrap px-4 py-4 font-semibold text-slate-950">{{ subject.subjectName }}</td>
+                  <td class="whitespace-nowrap px-4 py-4 text-slate-700">{{ subject.presentCount }}</td>
+                  <td class="whitespace-nowrap px-4 py-4 text-slate-700">{{ subject.absentCount }}</td>
+                  <td class="whitespace-nowrap px-4 py-4 text-slate-700">{{ subject.excusedCount }}</td>
+                  <td class="whitespace-nowrap px-4 py-4 text-slate-700">{{ subject.totalSessions }}</td>
+                  <td class="whitespace-nowrap px-4 py-4">
+                    <span [class]="percentageBadgeClass(subject.attendancePercentage)">
+                      {{ subject.attendancePercentage | number: '1.0-0' }}%
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="mt-5 rounded-lg border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+          No attendance records are available yet.
+        </div>
+      }
+    </article>
+  }
+</section>

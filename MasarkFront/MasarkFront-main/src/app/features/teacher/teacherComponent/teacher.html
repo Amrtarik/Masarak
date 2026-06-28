@@ -1,0 +1,107 @@
+<div class="tc-page font-sans" dir="rtl">
+
+  <!-- ── Top bar ──────────────────────────────────────────────────── -->
+  <div class="tc-topbar">
+    <div>
+      <h1 class="tc-greeting">مرحباً، أستاذ 👋</h1>
+      <p class="tc-date">{{ today }}</p>
+    </div>
+    <button class="tc-btn-primary">+ إضافة حصة جديدة</button>
+  </div>
+
+  <!-- ── Stats cards ───────────────────────────────────────────────── -->
+  <div class="tc-stats-grid">
+    <div *ngFor="let stat of stats()" class="tc-stat-card" [style.--clr]="stat.color" [style.--bg]="stat.bg">
+      <div class="stat-icon">{{ stat.icon }}</div>
+      <div>
+        <p class="stat-label">{{ stat.label }}</p>
+        <p class="stat-value">{{ stat.value }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main grid ─────────────────────────────────────────────────── -->
+  <div class="tc-grid">
+
+    <!-- Sessions column -->
+    <div class="tc-card sessions-card">
+      <div class="card-header">
+        <h2 class="card-title">جدول اليوم</h2>
+        <span class="sessions-count">{{ sessions().length }} حصص</span>
+      </div>
+
+      <div class="sessions-list">
+        <div *ngFor="let s of sessions()" class="session-item" [class.live]="s.status === 'live'" [class.done]="s.status === 'done'">
+          <div class="session-time">{{ s.time }}</div>
+          <div class="session-info">
+            <p class="session-title">{{ s.title }} — {{ s.subject }}</p>
+            <p class="session-grade">{{ s.grade }}</p>
+          </div>
+          <div class="session-actions">
+            <span class="status-chip" [class.live]="s.status === 'live'" [class.upcoming]="s.status === 'upcoming'" [class.done]="s.status === 'done'">
+              <span *ngIf="s.status === 'live'" class="live-dot"></span>
+              {{ sessionStatusLabel(s.status) }}
+            </span>
+            <button *ngIf="s.status === 'live'" class="tc-btn-live">ابدأ الجلسة</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="tc-col-right">
+
+      <!-- Attendance ring -->
+      <div class="tc-card attendance-card">
+        <h3 class="card-title sm">ملخص الحضور</h3>
+        <div class="attendance-row">
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="30" fill="none" stroke="#f1f5f9" stroke-width="10"/>
+              <circle cx="40" cy="40" r="30" fill="none" stroke="#10b981" stroke-width="10"
+                stroke-dasharray="188.5" stroke-dashoffset="15"
+                stroke-linecap="round" transform="rotate(-90 40 40)"/>
+            </svg>
+            <span class="ring-pct">٩٢٪</span>
+          </div>
+          <div class="attendance-legend">
+            <div class="legend-item"><span class="dot green"></span> حضور: ١١٤</div>
+            <div class="legend-item"><span class="dot red"></span> غائب: ٥</div>
+            <div class="legend-item"><span class="dot amber"></span> متأخر: ٣</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending assignments -->
+      <div class="tc-card pending-card">
+        <div class="pending-header">
+          <div>
+            <h3 class="card-title sm">الواجبات المعلقة</h3>
+            <p class="pending-sub">بانتظار التصحيح</p>
+          </div>
+          <div class="pending-count">٣٥</div>
+        </div>
+        <div class="pending-bar">
+          <div class="bar-fill" style="width: 70%"></div>
+        </div>
+        <p class="pending-hint">٧٠٪ من إجمالي الواجبات المرسلة</p>
+        <button class="tc-btn-ghost">عرض الكل</button>
+      </div>
+
+      <!-- Activities -->
+      <div class="tc-card activities-card">
+        <h3 class="card-title sm">الإشعارات الحديثة</h3>
+        <div class="activities-list">
+          <div *ngFor="let a of activities()" class="activity-item" [class.submission]="a.type === 'submission'" [class.alert]="a.type === 'alert'" [class.message]="a.type === 'message'">
+            <div class="activity-icon">{{ a.icon }}</div>
+            <div class="activity-body">
+              <p class="activity-text">{{ a.text }}</p>
+              <p class="activity-time">{{ a.time }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,149 @@
+<div class="max-w-7xl mx-auto px-4 py-12">
+  <!-- Header -->
+  <div class="text-center mb-14">
+    <span
+      class="inline-flex px-4 py-1 rounded-full bg-blue-100 text-blue-700 font-medium text-sm"
+    >
+      Pricing Plans
+    </span>
+
+    <h1 class="mt-4 text-4xl md:text-5xl font-bold text-slate-900">
+      Choose Your Plan
+    </h1>
+
+    <p class="mt-4 text-slate-500 max-w-2xl mx-auto">
+      Unlock courses, live classes, recordings and AI-powered learning tools.
+    </p>
+  </div>
+
+  <!-- Loading -->
+  <!-- @if (loading()) {
+  <div class="flex justify-center py-20">
+    <app-loading-spinner
+      size="lg"
+      label="Loading plans..."
+    ></app-loading-spinner>
+  </div>
+  } -->
+
+  <!-- Error -->
+  @if (error() && !loading()) {
+  <div
+    class="max-w-lg mx-auto bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 text-center"
+  >
+    {{ error() }}
+
+    <button
+      (click)="load()"
+      class="block mx-auto mt-3 text-sm underline"
+    >
+      Retry
+    </button>
+  </div>
+  }
+
+  <!-- Plans -->
+  @if (!loading() && !error() && plans().length > 0) {
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    @for (plan of plans(); track plan.planId; let i = $index) {
+
+    <div
+      class="relative bg-white rounded-3xl border shadow-sm hover:shadow-xl transition duration-300 overflow-hidden"
+    >
+      @if (i === 1) {
+      <div
+        class="absolute top-0 right-0 bg-blue-600 text-white text-xs px-4 py-1 rounded-bl-xl"
+      >
+        Most Popular
+      </div>
+      }
+
+      <div class="p-8">
+        <h3 class="text-2xl font-bold text-slate-900">
+          {{ plan.name }}
+        </h3>
+
+        <p class="text-slate-500 mt-2 min-h-[50px]">
+          {{ plan.description }}
+        </p>
+
+        <div class="mt-6">
+          <span class="text-5xl font-bold text-slate-900">
+            {{ plan.price }}
+          </span>
+
+          <span class="text-slate-500">
+            {{ plan.currency }}
+          </span>
+        </div>
+
+        <div class="mt-8 space-y-3">
+
+          <div class="flex items-center gap-2">
+            <span class="text-green-500">✓</span>
+            <span>{{ plan.durationDays }} Days Access</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-green-500">✓</span>
+            <span>AI Learning Assistant</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span
+              [class]="plan.hasLiveClass ? 'text-green-500' : 'text-red-500'"
+            >
+              {{ plan.hasLiveClass ? '✓' : '✕' }}
+            </span>
+            <span>Live Classes</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span
+              [class]="plan.hasRecordings ? 'text-green-500' : 'text-red-500'"
+            >
+              {{ plan.hasRecordings ? '✓' : '✕' }}
+            </span>
+            <span>Recordings</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-green-500">✓</span>
+            <span>{{ plan.maxSubjects }} Subjects</span>
+          </div>
+
+        </div>
+
+        <button
+          (click)="onSelectPlan(plan)"
+          [disabled]="checkingOutPlanId() === plan.planId"
+          class="w-full mt-8 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-3 rounded-xl font-semibold transition"
+        >
+          @if (checkingOutPlanId() === plan.planId) {
+          Processing...
+          } @else {
+          Subscribe Now
+          }
+        </button>
+      </div>
+    </div>
+
+    }
+  </div>
+  }
+
+  <!-- Empty -->
+  @if (!loading() && !error() && plans().length === 0) {
+  <div class="text-center py-20">
+    <h3 class="text-xl font-semibold text-slate-700">
+      No Plans Available
+    </h3>
+
+    <p class="text-slate-500 mt-2">
+      Check back later.
+    </p>
+  </div>
+  }
+</div>

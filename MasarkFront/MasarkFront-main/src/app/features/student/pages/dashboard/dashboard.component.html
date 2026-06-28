@@ -1,0 +1,102 @@
+<section class="space-y-6 text-slate-900" dir="rtl">
+  <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div class="text-right">
+      <p class="text-sm font-semibold text-sky-700">Masarak Education System</p>
+      <h1 class="mt-1 text-2xl font-bold text-slate-950 sm:text-3xl">Student Dashboard</h1>
+    </div>
+
+    <button
+      type="button"
+      class="inline-flex min-h-11 items-center justify-center rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+      [disabled]="isLoading()"
+      (click)="loadDashboard()"
+    >
+      @if (isLoading()) {
+        Loading...
+      } @else {
+        Refresh
+      }
+    </button>
+  </header>
+
+  @if (isLoading()) {
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="h-40 animate-pulse rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="h-4 w-24 rounded bg-slate-200"></div>
+          <div class="mt-8 h-7 w-40 rounded bg-slate-200"></div>
+          <div class="mt-4 h-4 w-full rounded bg-slate-100"></div>
+        </div>
+      }
+    </div>
+  } @else if (errorMessage()) {
+    <article class="rounded-lg border border-rose-200 bg-white p-6 text-right shadow-sm">
+      <p class="text-sm font-semibold text-rose-700">Dashboard could not be loaded</p>
+      <p class="mt-2 text-sm leading-6 text-slate-600">{{ errorMessage() }}</p>
+      <button
+        type="button"
+        class="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg bg-rose-600 px-4 text-sm font-semibold text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+        (click)="loadDashboard()"
+      >
+        Try again
+      </button>
+    </article>
+  } @else if (data(); as dashboard) {
+    <app-student-dashboard-cards
+      [profile]="dashboard.profile"
+      [classInfo]="dashboard.classInfo"
+      [courses]="dashboard.courses"
+      [attendance]="dashboard.attendance"
+      [performance]="dashboard.performance"
+      [schedule]="dashboard.schedule"
+    />
+
+    <div class="grid gap-6 xl:grid-cols-3">
+      <div class="space-y-6 xl:col-span-2">
+        <app-student-attendance-summary [summary]="dashboard.attendance" />
+
+        <article class="rounded-lg border border-slate-200 bg-white p-5 text-right shadow-sm">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="text-lg font-bold text-slate-950">Recent Courses</h2>
+            <a routerLink="courses" class="text-sm font-semibold text-sky-700 hover:text-sky-800">View all</a>
+          </div>
+
+          @if (recentCourses().length > 0) {
+            <div class="mt-5 grid gap-4 md:grid-cols-2">
+              @for (course of recentCourses(); track course.subjectId) {
+                <app-student-course-card [course]="course" />
+              }
+            </div>
+          } @else {
+            <div class="mt-5 rounded-lg border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+              No courses are assigned yet.
+            </div>
+          }
+        </article>
+      </div>
+
+      <article class="rounded-lg border border-slate-200 bg-white p-5 text-right shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-lg font-bold text-slate-950">Upcoming Schedule</h2>
+          <a routerLink="schedule" class="text-sm font-semibold text-sky-700 hover:text-sky-800">View all</a>
+        </div>
+
+        @if (actionMessage()) {
+          <p class="mt-4 rounded-lg bg-slate-50 p-3 text-sm font-semibold text-slate-700">{{ actionMessage() }}</p>
+        }
+
+        @if (upcomingSchedule().length > 0) {
+          <div class="mt-5 grid gap-4">
+            @for (session of upcomingSchedule(); track session.sessionId ?? session.sessionDate + session.sessionTitle) {
+              <app-student-schedule-card [session]="session" (joinSession)="joinSession($event)" />
+            }
+          </div>
+        } @else {
+          <div class="mt-5 rounded-lg border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+            No upcoming sessions are scheduled.
+          </div>
+        }
+      </article>
+    </div>
+  }
+</section>

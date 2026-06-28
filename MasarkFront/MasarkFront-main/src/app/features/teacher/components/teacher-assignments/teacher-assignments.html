@@ -1,0 +1,72 @@
+<div class="space-y-6 font-sans text-slate-800" dir="rtl">
+
+  <div class="flex items-center justify-between">
+    <div class="flex flex-col gap-1">
+      <h1 class="text-2xl font-black text-slate-900">الواجبات والتقييمات</h1>
+      <p class="text-xs font-bold text-slate-400">إضافة واجبات جديدة ومتابعة تسليمات الطلاب وتصحيحها</p>
+    </div>
+    <button class="flex items-center justify-center gap-2 bg-[#4F8CD4] hover:bg-blue-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-blue-100 active:scale-95">
+      ➕ إضافة واجب جديد
+    </button>
+  </div>
+
+  <div class="bg-white rounded-[24px] p-6 shadow-xs border border-slate-100 space-y-6">
+    
+    <div class="overflow-x-auto">
+      <table class="w-full text-right border-collapse text-sm">
+        <thead>
+          <tr class="text-slate-400 font-bold border-b border-slate-100 bg-slate-50/50">
+            <th class="py-3 pr-4 font-black">عنوان الواجب</th>
+            <th class="py-3 font-black">المادة / الفصل</th>
+            <th class="py-3 font-black">تاريخ النشر</th>
+            <th class="py-3 font-black">آخر موعد للتسليم</th>
+            <th class="py-3 font-black">نسبة التسليم</th>
+            <th class="py-3 pl-4 text-center font-black">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+          
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="py-4 pr-4 font-bold text-slate-900">واجب الرياضيات: المعادلات الخطية</td>
+            <td class="py-4 text-xs text-slate-500 font-bold">الرياضيات / أول ثانوي (أ)</td>
+            <td class="py-4 text-xs text-slate-500">20/06/2026</td>
+            <td class="py-4 text-xs text-rose-500 font-bold">25/06/2026</td>
+            <td class="py-4 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-900">25 / 30 طالب</span>
+                <span class="text-[10px] bg-blue-50 text-[#4F8CD4] px-1.5 py-0.5 rounded-sm">بانتظار التصحيح</span>
+              </div>
+            </td>
+            <td class="py-4 pl-4 text-center">
+              <div class="flex items-center justify-center gap-2">
+                <button class="bg-[#4F8CD4] hover:bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">بدء التصحيح</button>
+                <button class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">تعديل</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="py-4 pr-4 font-bold text-slate-900">تطبيق قصير: حساب المثلثات</td>
+            <td class="py-4 text-xs text-slate-500 font-bold">الرياضيات / أول ثانوي (ب)</td>
+            <td class="py-4 text-xs text-slate-500">18/06/2026</td>
+            <td class="py-4 text-xs text-slate-400">22/06/2026 (مغلق)</td>
+            <td class="py-4 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-emerald-600">30 / 30 طالب</span>
+                <span class="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-sm">مكتمل ومصحح</span>
+              </div>
+            </td>
+            <td class="py-4 pl-4 text-center">
+              <div class="flex items-center justify-center gap-2">
+                <button class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">عرض النتائج</button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
