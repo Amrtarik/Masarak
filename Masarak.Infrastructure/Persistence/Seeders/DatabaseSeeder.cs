@@ -136,5 +136,94 @@ namespace Masarak.Infrastructure.Persistence.Seeders
             await db.SaveChangesAsync();
             Console.WriteLine($"[Seeder] {rooms.Count} chat rooms seeded ({grades.Count} grade rooms + 1 teachers room).");
         }
+        
+        public static async Task SeedTestTeachersAsync(Context db, IPasswordService pwd)
+        {
+            if (await db.Teachers.AnyAsync()) return;
+
+            var role = await db.Roles.FirstOrDefaultAsync(r => r.Name == AppRoles.Teacher);
+            if (role == null) return;
+
+            var user1 = new User { RoleId = role.RoleId, FullName = "Ahmed Teacher", Email = "ahmed.teacher@masarak.com", PasswordHash = pwd.HashPassword("Teacher@123!"), Country = "EG", CreatedAt = DateTime.UtcNow, IsActive = true, EmailConfirmed = true, FailedLoginCount = 0 };
+            var user2 = new User { RoleId = role.RoleId, FullName = "Mona Teacher", Email = "mona.teacher@masarak.com", PasswordHash = pwd.HashPassword("Teacher@123!"), Country = "EG", CreatedAt = DateTime.UtcNow, IsActive = true, EmailConfirmed = true, FailedLoginCount = 0 };
+            
+            db.Users.AddRange(user1, user2);
+            await db.SaveChangesAsync();
+
+            db.Teachers.Add(new Teacher { UserId = user1.UserId, Specialization = "Mathematics", Bio = "Math teacher", HiringDate = DateTime.UtcNow });
+            db.Teachers.Add(new Teacher { UserId = user2.UserId, Specialization = "Science", Bio = "Science teacher", HiringDate = DateTime.UtcNow });
+            await db.SaveChangesAsync();
+            Console.WriteLine("[Seeder] 2 test teachers seeded.");
+        }
+
+        public static async Task SeedTestStudentsAsync(Context db, IPasswordService pwd)
+        {
+            if (await db.Students.AnyAsync()) return;
+
+            var role = await db.Roles.FirstOrDefaultAsync(r => r.Name == AppRoles.Student);
+            var grade1 = await db.Grades.FirstOrDefaultAsync(g => g.Order == 1);
+            if (role == null || grade1 == null) return;
+
+            var user1 = new User { RoleId = role.RoleId, FullName = "Youssef Student", Email = "youssef@student.com", PasswordHash = pwd.HashPassword("Student@123!"), Country = "EG", CreatedAt = DateTime.UtcNow, IsActive = true, EmailConfirmed = true, FailedLoginCount = 0 };
+            var user2 = new User { RoleId = role.RoleId, FullName = "Salma Student", Email = "salma@student.com", PasswordHash = pwd.HashPassword("Student@123!"), Country = "EG", CreatedAt = DateTime.UtcNow, IsActive = true, EmailConfirmed = true, FailedLoginCount = 0 };
+            
+            db.Users.AddRange(user1, user2);
+            await db.SaveChangesAsync();
+
+            db.Students.Add(new Student { UserId = user1.UserId, GradeId = grade1.GradeId, EnrollmentDate = DateTime.UtcNow, AcademicStatus = "Active" });
+            db.Students.Add(new Student { UserId = user2.UserId, GradeId = grade1.GradeId, EnrollmentDate = DateTime.UtcNow, AcademicStatus = "Active" });
+            await db.SaveChangesAsync();
+            Console.WriteLine("[Seeder] 2 test students seeded.");
+        }
+
+        public static async Task SeedSubjectsAsync(Context db)
+        {
+            if (await db.Subjects.AnyAsync()) return;
+            var grade1 = await db.Grades.FirstOrDefaultAsync(g => g.Order == 1);
+            if (grade1 == null) return;
+
+            db.Subjects.Add(Subject.Create(grade1.GradeId, "Mathematics 1", "رياضيات", "MATH-1"));
+            db.Subjects.Add(Subject.Create(grade1.GradeId, "Science 1", "علوم", "SCI-1"));
+            db.Subjects.Add(Subject.Create(grade1.GradeId, "Arabic 1", "عربي", "ARB-1"));
+            await db.SaveChangesAsync();
+            Console.WriteLine("[Seeder] 3 test subjects seeded.");
+        }
+
+        public static async Task SeedClassesAsync(Context db)
+        {
+            if (await db.Classes.AnyAsync()) return;
+            var grade1 = await db.Grades.FirstOrDefaultAsync(g => g.Order == 1);
+            if (grade1 == null) return;
+
+            db.Classes.Add(Class.Create(grade1.GradeId, "Class 1A", 30, 2024));
+            db.Classes.Add(Class.Create(grade1.GradeId, "Class 1B", 30, 2024));
+            await db.SaveChangesAsync();
+            Console.WriteLine("[Seeder] 2 test classes seeded.");
+        }
+
+        public static async Task SeedTeachingAssignmentsAsync(Context db)
+        {
+            if (await db.TeachingAssignments.AnyAsync()) return;
+            var teacher1 = await db.Teachers.FirstOrDefaultAsync();
+            var class1 = await db.Classes.FirstOrDefaultAsync();
+            var mathSubj = await db.Subjects.FirstOrDefaultAsync(s => s.Name == "Mathematics 1");
+            if (teacher1 == null || class1 == null || mathSubj == null) return;
+
+            db.TeachingAssignments.Add(TeachingAssignment.Create(teacher1.TeacherId, class1.ClassId, mathSubj.SubjectId, 2024));
+            await db.SaveChangesAsync();
+            Console.WriteLine("[Seeder] 1 teaching assignment seeded.");
+        }
+
+        public static async Task SeedStudentEnrollmentsAsync(Context db)
+        {
+            if (await db.StudentClasses.AnyAsync()) return;
+            var student1 = await db.Students.FirstOrDefaultAsync();
+            var class1 = await db.Classes.FirstOrDefaultAsync();
+            if (student1 == null || class1 == null) return;
+
+            db.StudentClasses.Add(StudentClass.Enroll(student1.StudentId, class1.ClassId, 2024));
+            await db.SaveChangesAsync();
+            Console.WriteLine("[Seeder] 1 student enrollment seeded.");
+        }
     }
 }

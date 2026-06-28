@@ -20,6 +20,7 @@ export interface AdminUser {
   /** 'api' = came from backend, 'manual' = admin-added locally */
   source: 'api' | 'manual';
   subscription?: {
+    subscriptionId: number;
     planName: string;
     planType: string;
     status: string;
@@ -178,6 +179,7 @@ export class UserManagement implements OnInit {
   private mapSub(sub?: SubscriptionDto): AdminUser['subscription'] {
     if (!sub) return null;
     return {
+      subscriptionId: sub.subscriptionId,
       planName: sub.planName,
       planType: sub.planType,
       status: sub.status,
@@ -366,27 +368,30 @@ export class UserManagement implements OnInit {
     if (!studentId) { this.setFeedback('اختر طالبًا أولاً', 'error'); return; }
     if (!this.selectedPlanId()) { this.setFeedback('اختر خطة أولاً', 'error'); return; }
 
+    const student = this.studentUsers().find((u) => u.id === studentId);
+    
+    if (student?.source === 'manual') {
+      this.setFeedback('لا يمكن إضافة اشتراك لطالب غير محفوظ في قاعدة البيانات', 'error');
+      this.assigning.set(false);
+      return;
+    }
+
     this.assigning.set(true);
     this.setFeedback(null);
 
-    const student = this.studentUsers().find((u) => u.id === studentId);
     const plan = this.plans().find((p) => p.planId === this.selectedPlanId());
     const note = `Assigned from admin panel for ${student?.name ?? 'student'}`;
 
     this.subApi
       .adminActivate({ studentUserId: studentId, planId: this.selectedPlanId()!, note })
       .subscribe({
-        next: () => {
+        next: (createdSub) => {
           this.assigning.set(false);
           if (student && plan) {
-            const now = new Date();
-            const end = new Date(now);
-            end.setDate(end.getDate() + (plan.durationDays || 30));
-
             this.users.update((list) =>
               list.map((u) =>
                 u.id === studentId
-                  ? { ...u, subscription: { planName: plan.name, planType: plan.type, status: 'Active', endDate: end.toISOString() } }
+                  ? { ...u, subscription: { subscriptionId: createdSub.subscriptionId, planName: plan.name, planType: plan.type, status: 'Active', endDate: createdSub.endDate } }
                   : u,
               ),
             );
@@ -395,9 +400,10 @@ export class UserManagement implements OnInit {
           this.selectedStudentId.set(null);
           this.selectedPlanId.set(null);
         },
-        error: () => {
+        error: (err) => {
           this.assigning.set(false);
-          this.setFeedback('تعذر إضافة الاشتراك. تأكد من صلاحية الطالب أو الخطة.', 'error');
+          const backendMessage = err?.error?.message || 'تعذر إضافة الاشتراك. تأكد من صلاحية الطالب أو الخطة.';
+          this.setFeedback(backendMessage, 'error');
         },
       });
   }

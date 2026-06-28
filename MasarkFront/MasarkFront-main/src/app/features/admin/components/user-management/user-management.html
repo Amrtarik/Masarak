@@ -138,7 +138,7 @@
                 <button
                   *ngIf="user.subscription && user.subscription.status === 'Active'"
                   class="btn-cancel"
-                  (click)="cancelSubscription(user.id, 0)"
+                  (click)="cancelSubscription(user.id, user.subscription.subscriptionId)"
                   title="إلغاء الاشتراك">
                   🚫 إلغاء الاشتراك
                 </button>
